@@ -1,0 +1,82 @@
+<patch appVersion="1.0.12">
+   <obj type="osc/sine" uuid="6e094045cca76a9dbf7ebfa72e44e4700d2b3ba" name="osc_1" x="28" y="14">
+      <params>
+         <frac32.s.map name="pitch" onParent="false" value="1.0">
+            <presets/>
+         </frac32.s.map>
+      </params>
+      <attribs/>
+   </obj>
+   <obj type="math/*c" uuid="7a66f52a9594e7e9eb31328ea725cb3641a80b55" name="*c_1" x="350" y="14">
+      <params>
+         <frac32.u.map name="amp" onParent="false" value="12.5">
+            <presets/>
+         </frac32.u.map>
+      </params>
+      <attribs/>
+   </obj>
+   <obj type="audio/out left" uuid="b11a3c09b2fdd575ea8212f2ce7743d5269253b1" name="dac_11" x="476" y="14">
+      <params/>
+      <attribs/>
+   </obj>
+   <obj type="audio/out right" uuid="e58a4cbbb087052c5480366e3f5d3a04aa319777" name="dac_21" x="476" y="70">
+      <params/>
+      <attribs/>
+   </obj>
+   <comment type="patch/comment" name="35" x="308" y="112" text="adjust the amplitude"/>
+   <comment type="patch/comment" name="37" x="28" y="140" text="Turn this dial to adjust the frequency"/>
+   <comment type="patch/comment" name="39" x="28" y="154" text="Click on the label left of the dial to see different units:"/>
+   <comment type="patch/comment" name="41" x="476" y="154" text="left and right audio output"/>
+   <comment type="patch/comment" name="43" x="28" y="168" text="- Frequency in Hz"/>
+   <comment type="patch/comment" name="45" x="28" y="182" text="- Musical note, octave number, deviation from standard tuning"/>
+   <comment type="patch/comment" name="47" x="28" y="196" text="- Ratio (referenced to musical note E4)"/>
+   <comment type="patch/comment" name="49" x="28" y="238" text="hold shift to make small adjustments using mouse"/>
+   <obj type="ctrl/toggle" uuid="42b8134fa729d54bfc8d62d6ef3fa99498c1de99" name="FREEZE" x="392" y="238">
+      <params>
+         <bool32.tgl name="b" onParent="false" value="0">
+            <presets/>
+         </bool32.tgl>
+      </params>
+      <attribs/>
+   </obj>
+   <obj type="disp/scope 128 b trig" uuid="11747dcd1dc9afe4919f537c861fb18b80b4e4e" name="scope_128s_trig1" x="476" y="238">
+      <params/>
+      <attribs/>
+   </obj>
+   <comment type="patch/comment" name="51" x="672" y="238" text="time domain plot"/>
+   <comment type="patch/comment" name="53" x="714" y="252" text="vertical middle = zero"/>
+   <comment type="patch/comment" name="55" x="28" y="266" text="when the dial is focused (click)"/>
+   <comment type="patch/comment" name="57" x="42" y="280" text="you can also enter a number followed by enter to accept"/>
+   <comment type="patch/comment" name="59" x="714" y="280" text="up = positive value"/>
+   <comment type="patch/comment" name="61" x="714" y="294" text="down = negative value"/>
+   <comment type="patch/comment" name="63" x="714" y="322" text="left = early, right = late"/>
+   <comment type="patch/comment" name="65" x="714" y="336" text="(width = 128 samples = 2.6 milliseconds)"/>
+   <comment type="patch/comment" name="67" x="560" y="490" text="Open next tutorial -&gt;"/>
+   <hyperlink type="patch/hyperlink" name="02_keyboard_controlled_sine_oscillator.axp" x="686" y="490"/>
+   <nets>
+      <net>
+         <source obj="*c_1" outlet="out"/>
+         <dest obj="dac_11" inlet="wave"/>
+         <dest obj="dac_21" inlet="wave"/>
+         <dest obj="scope_128s_trig1" inlet="in"/>
+      </net>
+      <net>
+         <source obj="osc_1" outlet="wave"/>
+         <dest obj="*c_1" inlet="in"/>
+      </net>
+      <net>
+         <source obj="FREEZE" outlet="o"/>
+         <dest obj="scope_128s_trig1" inlet="hold"/>
+      </net>
+   </nets>
+   <settings>
+      <subpatchmode>no</subpatchmode>
+   </settings>
+   <notes><![CDATA[]]></notes>
+   <windowPos>
+      <x>291</x>
+      <y>118</y>
+      <width>1030</width>
+      <height>719</height>
+   </windowPos>
+</patch>

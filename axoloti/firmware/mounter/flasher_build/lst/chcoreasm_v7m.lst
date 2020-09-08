@@ -1,0 +1,606 @@
+ARM GAS  /tmp/ccGPUBGY.s 			page 1
+
+
+   1              	# 1 "../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S"
+   1              	/*
+   1              	...
+   0              	
+   0              	
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+   3              	
+   4              	    This file is part of ChibiOS.
+   5              	
+   6              	    ChibiOS is free software; you can redistribute it and/or modify
+   7              	    it under the terms of the GNU General Public License as published by
+   8              	    the Free Software Foundation; either version 3 of the License, or
+   9              	    (at your option) any later version.
+  10              	
+  11              	    ChibiOS is distributed in the hope that it will be useful,
+  12              	    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13              	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14              	    GNU General Public License for more details.
+  15              	
+  16              	    You should have received a copy of the GNU General Public License
+  17              	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  18              	*/
+  19              	
+  20              	/**
+  21              	 * @file    compilers/GCC/chcoreasm_v7m.S
+  22              	 * @brief   ARMv7-M architecture port low level code.
+  23              	 *
+  24              	 * @addtogroup ARMCMx_GCC_CORE
+  25              	 * @{
+  26              	 */
+  27              	
+  28              	#if !defined(FALSE) || defined(__DOXYGEN__)
+  29              	#define FALSE   0
+  30              	#endif
+  31              	
+  32              	#if !defined(TRUE) || defined(__DOXYGEN__)
+  33              	#define TRUE    1
+  34              	#endif
+  35              	
+  36              	#define _FROM_ASM_
+  37              	#include "chlicense.h"
+   1              	/*
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+   3              	
+   4              	    This file is part of ChibiOS.
+   5              	
+   6              	    ChibiOS is free software; you can redistribute it and/or modify
+   7              	    it under the terms of the GNU General Public License as published by
+   8              	    the Free Software Foundation; either version 3 of the License, or
+   9              	    (at your option) any later version.
+  10              	
+  11              	    ChibiOS is distributed in the hope that it will be useful,
+  12              	    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13              	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14              	    GNU General Public License for more details.
+  15              	
+  16              	    You should have received a copy of the GNU General Public License
+ARM GAS  /tmp/ccGPUBGY.s 			page 2
+
+
+  17              	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  18              	*/
+  19              	
+  20              	/**
+  21              	 * @file    chlicense.h
+  22              	 * @brief   License Module macros and structures.
+  23              	 *
+  24              	 * @addtogroup chibios_license
+  25              	 * @details This module contains all the definitions required for defining
+  26              	 *          a licensing scheme for customers or public releases.
+  27              	 * @{
+  28              	 */
+  29              	
+  30              	#ifndef CHLICENSE_H
+  31              	#define CHLICENSE_H
+  32              	
+  33              	/*===========================================================================*/
+  34              	/* Module constants.                                                         */
+  35              	/*===========================================================================*/
+  36              	
+  37              	/**
+  38              	 * @name   Allowed Features Levels
+  39              	 * @{
+  40              	 */
+  41              	#define CH_FEATURES_BASIC                   0
+  42              	#define CH_FEATURES_INTERMEDIATE            1
+  43              	#define CH_FEATURES_FULL                    2
+  44              	/** @} */
+  45              	
+  46              	/**
+  47              	 * @name    Deployment Options
+  48              	 */
+  49              	#define CH_DEPLOY_UNLIMITED                -1
+  50              	#define CH_DEPLOY_NONE                      0
+  51              	/** @} */
+  52              	
+  53              	/**
+  54              	 * @name    Licensing Options
+  55              	 * @{
+  56              	 */
+  57              	#define CH_LICENSE_GPL                      0
+  58              	#define CH_LICENSE_GPL_EXCEPTION            1
+  59              	#define CH_LICENSE_COMMERCIAL_FREE          2
+  60              	#define CH_LICENSE_COMMERCIAL_DEV_1000      3
+  61              	#define CH_LICENSE_COMMERCIAL_DEV_5000      4
+  62              	#define CH_LICENSE_COMMERCIAL_FULL          5
+  63              	#define CH_LICENSE_COMMERCIAL_RUNTIME       6
+  64              	#define CH_LICENSE_PARTNER                  7
+  65              	/** @} */
+  66              	
+  67              	#include "chcustomer.h"
+   1              	/*
+  68              	#if CH_LICENSE == CH_LICENSE_PARTNER
+  38              	#include "chconf.h"
+   1              	/*
+  39              	#include "chcore.h"
+   1              	/*
+ARM GAS  /tmp/ccGPUBGY.s 			page 3
+
+
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+   3              	
+   4              	    This file is part of ChibiOS.
+   5              	
+   6              	    ChibiOS is free software; you can redistribute it and/or modify
+   7              	    it under the terms of the GNU General Public License as published by
+   8              	    the Free Software Foundation; either version 3 of the License, or
+   9              	    (at your option) any later version.
+  10              	
+  11              	    ChibiOS is distributed in the hope that it will be useful,
+  12              	    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13              	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14              	    GNU General Public License for more details.
+  15              	
+  16              	    You should have received a copy of the GNU General Public License
+  17              	    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  18              	*/
+  19              	
+  20              	/**
+  21              	 * @file    ARMCMx/chcore.h
+  22              	 * @brief   ARM Cortex-Mx port macros and structures.
+  23              	 *
+  24              	 * @addtogroup ARMCMx_CORE
+  25              	 * @{
+  26              	 */
+  27              	
+  28              	#ifndef CHCORE_H
+  29              	#define CHCORE_H
+  30              	
+  31              	/*===========================================================================*/
+  32              	/* Module constants.                                                         */
+  33              	/*===========================================================================*/
+  34              	
+  35              	/**
+  36              	 * @name    Architecture and Compiler
+  37              	 * @{
+  38              	 */
+  39              	/**
+  40              	 * @brief   Macro defining a generic ARM architecture.
+  41              	 */
+  42              	#define PORT_ARCHITECTURE_ARM
+  43              	
+  44              	/* The following code is not processed when the file is included from an
+  45              	   asm module because those intrinsic macros are not necessarily defined
+  46              	   by the assembler too.*/
+  47              	#if !defined(_FROM_ASM_)
+  48              	
+  49              	/**
+  50              	 * @brief   Compiler name and version.
+  51              	 */
+  52              	#if defined(__GNUC__) || defined(__DOXYGEN__)
+  53              	#define PORT_COMPILER_NAME              "GCC " __VERSION__
+  54              	
+  55              	#elif defined(__ICCARM__)
+  56              	#define PORT_COMPILER_NAME              "IAR"
+  57              	
+  58              	#elif defined(__CC_ARM)
+ARM GAS  /tmp/ccGPUBGY.s 			page 4
+
+
+  59              	#define PORT_COMPILER_NAME              "RVCT"
+  60              	
+  61              	#else
+  62              	#error "unsupported compiler"
+  63              	#endif
+  64              	
+  65              	#endif /* !defined(_FROM_ASM_) */
+  66              	
+  67              	/** @} */
+  68              	
+  69              	/* Inclusion of the Cortex-Mx implementation specific parameters.*/
+  70              	#include "cmparams.h"
+   1              	/*
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+   3              	
+   4              	    Licensed under the Apache License, Version 2.0 (the "License");
+   5              	    you may not use this file except in compliance with the License.
+   6              	    You may obtain a copy of the License at
+   7              	
+   8              	        http://www.apache.org/licenses/LICENSE-2.0
+   9              	
+  10              	    Unless required by applicable law or agreed to in writing, software
+  11              	    distributed under the License is distributed on an "AS IS" BASIS,
+  12              	    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  13              	    See the License for the specific language governing permissions and
+  14              	    limitations under the License.
+  15              	*/
+  16              	
+  17              	/**
+  18              	 * @file    STM32H7xx/cmparams.h
+  19              	 * @brief   ARM Cortex-M7 parameters for the STM32F4xx.
+  20              	 *
+  21              	 * @defgroup ARMCMx_STM32H7xx STM32H7xx Specific Parameters
+  22              	 * @ingroup ARMCMx_SPECIFIC
+  23              	 * @details This file contains the Cortex-M7 specific parameters for the
+  24              	 *          STM32H7xx platform.
+  25              	 * @{
+  26              	 */
+  27              	
+  28              	#ifndef CMPARAMS_H
+  29              	#define CMPARAMS_H
+  30              	
+  31              	/**
+  32              	 * @brief   Cortex core model.
+  33              	 */
+  34              	#define CORTEX_MODEL            7
+  35              	
+  36              	/**
+  37              	 * @brief   Floating Point unit presence.
+  38              	 */
+  39              	#define CORTEX_HAS_FPU          1
+  40              	
+  41              	/**
+  42              	 * @brief   Number of bits in priority masks.
+  43              	 */
+  44              	#define CORTEX_PRIORITY_BITS    4
+  45              	
+ARM GAS  /tmp/ccGPUBGY.s 			page 5
+
+
+  46              	/* If the device type is not externally defined, for example from the Makefile,
+  47              	   then a file named board.h is included. This file must contain a device
+  48              	   definition compatible with the vendor include file.*/
+  49              	#if !defined(STM32H742xx) && !defined(STM32H750xx) &&                       \
+  50              	    !defined(STM32H743xx) && !defined(STM32H753xx) &&                       \
+  51              	    !defined(STM32H747xx) && !defined(STM32H757xx) &&                       \
+  52              	    !defined(STM32H745xx) && !defined(STM32H755xx) &&                       \
+  53              	    !defined(STM32H7B0xx) && !defined(STM32H7B0xxQ) &&                      \
+  54              	    !defined(STM32H7A3xx) && !defined(STM32H7A3xxQ) &&                      \
+  55              	    !defined(STM32H7B3xx) && !defined(STM32H7B3xxQ)
+  56              	#include "board.h"
+   1              	/*
+  57              	#endif
+  71              	
+  72              	/*===========================================================================*/
+  73              	/* Module pre-compile time settings.                                         */
+  74              	/*===========================================================================*/
+  75              	
+  76              	/**
+  77              	 * @brief   Enables an alternative timer implementation.
+  78              	 * @details Usually the port uses a timer interface defined in the file
+  79              	 *          @p chcore_timer.h, if this option is enabled then the file
+  80              	 *          @p chcore_timer_alt.h is included instead.
+  81              	 */
+  82              	#if !defined(PORT_USE_ALT_TIMER)
+  83              	#define PORT_USE_ALT_TIMER              FALSE
+  84              	#endif
+  85              	
+  86              	/*===========================================================================*/
+  87              	/* Derived constants and error checks.                                       */
+  88              	/*===========================================================================*/
+  89              	
+  90              	/*===========================================================================*/
+  91              	/* Module data structures and types.                                         */
+  92              	/*===========================================================================*/
+  93              	
+  94              	/* The following code is not processed when the file is included from an
+  95              	   asm module.*/
+  96              	#if !defined(_FROM_ASM_)
+  97              	
+  98              	/**
+  99              	 * @brief   Type of stack and memory alignment enforcement.
+ 100              	 * @note    In this architecture the stack alignment is enforced to 64 bits,
+ 101              	 *          32 bits alignment is supported by hardware but deprecated by ARM,
+ 102              	 *          the implementation choice is to not offer the option.
+ 103              	 */
+ 104              	typedef uint64_t stkalign_t;
+ 105              	
+ 106              	/* The following declarations are there just for Doxygen documentation, the
+ 107              	   real declarations are inside the sub-headers being specific for the
+ 108              	   sub-architectures.*/
+ 109              	#if defined(__DOXYGEN__)
+ 110              	/**
+ 111              	 * @brief   Interrupt saved context.
+ 112              	 * @details This structure represents the stack frame saved during a
+ 113              	 *          preemption-capable interrupt handler.
+ 114              	 * @note    It is implemented to match the Cortex-Mx exception context.
+ARM GAS  /tmp/ccGPUBGY.s 			page 6
+
+
+ 115              	 */
+ 116              	struct port_extctx {};
+ 117              	
+ 118              	/**
+ 119              	 * @brief   System saved context.
+ 120              	 * @details This structure represents the inner stack frame during a context
+ 121              	 *          switch.
+ 122              	 */
+ 123              	struct port_intctx {};
+ 124              	
+ 125              	/**
+ 126              	 * @brief   Platform dependent part of the @p thread_t structure.
+ 127              	 * @details In this port the structure just holds a pointer to the
+ 128              	 *          @p port_intctx structure representing the stack pointer
+ 129              	 *          at context switch time.
+ 130              	 */
+ 131              	struct port_context {};
+ 132              	#endif /* defined(__DOXYGEN__) */
+ 133              	
+ 134              	#endif /* !defined(_FROM_ASM_) */
+ 135              	
+ 136              	/*===========================================================================*/
+ 137              	/* Module macros.                                                            */
+ 138              	/*===========================================================================*/
+ 139              	
+ 140              	/**
+ 141              	 * @brief   Total priority levels.
+ 142              	 */
+ 143              	#define CORTEX_PRIORITY_LEVELS          (1U << CORTEX_PRIORITY_BITS)
+ 144              	
+ 145              	/**
+ 146              	 * @brief   Minimum priority level.
+ 147              	 * @details This minimum priority level is calculated from the number of
+ 148              	 *          priority bits supported by the specific Cortex-Mx implementation.
+ 149              	 */
+ 150              	#define CORTEX_MINIMUM_PRIORITY         (CORTEX_PRIORITY_LEVELS - 1)
+ 151              	
+ 152              	/**
+ 153              	 * @brief   Maximum priority level.
+ 154              	 * @details The maximum allowed priority level is always zero.
+ 155              	 */
+ 156              	#define CORTEX_MAXIMUM_PRIORITY         0U
+ 157              	
+ 158              	/**
+ 159              	 * @brief   Priority level to priority mask conversion macro.
+ 160              	 */
+ 161              	#define CORTEX_PRIO_MASK(n)                                                 \
+ 162              	  ((n) << (8U - (unsigned)CORTEX_PRIORITY_BITS))
+ 163              	
+ 164              	/**
+ 165              	 * @brief   Priority level verification macro.
+ 166              	 */
+ 167              	#define PORT_IRQ_IS_VALID_PRIORITY(n)                                       \
+ 168              	  (((n) >= 0U) && ((n) < CORTEX_PRIORITY_LEVELS))
+ 169              	
+ 170              	/**
+ 171              	 * @brief   Priority level verification macro.
+ARM GAS  /tmp/ccGPUBGY.s 			page 7
+
+
+ 172              	 */
+ 173              	#define PORT_IRQ_IS_VALID_KERNEL_PRIORITY(n)                                \
+ 174              	  (((n) >= CORTEX_MAX_KERNEL_PRIORITY) && ((n) < CORTEX_PRIORITY_LEVELS))
+ 175              	
+ 176              	/*===========================================================================*/
+ 177              	/* External declarations.                                                    */
+ 178              	/*===========================================================================*/
+ 179              	
+ 180              	/*===========================================================================*/
+ 181              	/* Module inline functions.                                                  */
+ 182              	/*===========================================================================*/
+ 183              	
+ 184              	/* Includes the sub-architecture-specific part.*/
+ 185              	#if (CORTEX_MODEL == 0) || (CORTEX_MODEL == 1)
+ 186              	#include "chcore_v6m.h"
+ 187              	#elif (CORTEX_MODEL == 3) || (CORTEX_MODEL == 4) || (CORTEX_MODEL == 7)
+ 188              	#include "mpu.h"
+   1              	/*
+ 189              	#include "chcore_v7m.h"
+   1              	/*
+ 190              	#else
+  40              	
+  41              	#if !defined(__DOXYGEN__)
+  42              	
+  43              	/*
+  44              	 * RTOS-specific context offset.
+  45              	 */
+  46              	#if defined(_CHIBIOS_RT_CONF_)
+  47              	#define CONTEXT_OFFSET  12
+  48              	#elif defined(_CHIBIOS_NIL_CONF_)
+  49              	#define CONTEXT_OFFSET  0
+  50              	#else
+  51              	#error "invalid chconf.h"
+  52              	#endif
+  53              	
+  54              	/* MPU-related constants.*/
+  55              	#define MPU_RBAR        0xE000ED9C
+  56              	
+  57              	/* Other constants.*/
+  58              	#define SCB_ICSR        0xE000ED04
+  59              	#define ICSR_PENDSVSET  0x10000000
+  60              	
+  61              	                .syntax unified
+  62              	                .cpu    cortex-m4
+  63              	#if CORTEX_USE_FPU
+  64              	                .fpu    fpv4-sp-d16
+  65              	#else
+  66              	                .fpu    softvfp
+  67              	#endif
+  68              	
+  69              	                .thumb
+  70              	                .text
+  71              	
+  72              	/*--------------------------------------------------------------------------*
+  73              	 * Performs a context switch between two threads.
+  74              	 *--------------------------------------------------------------------------*/
+  75              	                .thumb_func
+ARM GAS  /tmp/ccGPUBGY.s 			page 8
+
+
+  76              	                .globl  _port_switch
+  77              	_port_switch:
+  78 0000 2DE9F04F 	                push    {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+  79              	#if CORTEX_USE_FPU
+  80              	                /* Saving FPU context.*/
+  81 0004 2DED108A 	                vpush   {s16-s31}
+  82              	#endif
+  83              	
+  84              	#if PORT_SWITCHED_REGIONS_NUMBER > 0
+  85              	                /* Saving MPU context.*/
+  86              	                ldr     r2, =MPU_RBAR
+  87              	#if PORT_SWITCHED_REGIONS_NUMBER >= 1
+  88              	                mov     r3, #0
+  89              	                str     r3, [r2, #-4]   /* RNR */
+  90              	                ldm     r2, {r4, r5}    /* RBAR, RASR */
+  91              	#endif
+  92              	#if PORT_SWITCHED_REGIONS_NUMBER >= 2
+  93              	                add     r3, #1
+  94              	                str     r3, [r2, #-4]   /* RNR */
+  95              	                ldm     r2, {r6, r7}    /* RBAR, RASR */
+  96              	#endif
+  97              	#if PORT_SWITCHED_REGIONS_NUMBER >= 3
+  98              	                add     r3, #1
+  99              	                str     r3, [r2, #-4]   /* RNR */
+ 100              	                ldm     r2, {r8, r9}    /* RBAR, RASR */
+ 101              	#endif
+ 102              	#if PORT_SWITCHED_REGIONS_NUMBER >= 4
+ 103              	                add     r3, #1
+ 104              	                str     r3, [r2, #-4]   /* RNR */
+ 105              	                ldm     r2, {r10, r11}  /* RBAR, RASR */
+ 106              	#endif
+ 107              	#if PORT_SWITCHED_REGIONS_NUMBER == 1
+ 108              	                push    {r4, r5}
+ 109              	#endif
+ 110              	#if PORT_SWITCHED_REGIONS_NUMBER == 2
+ 111              	                push    {r4, r5, r6, r7}
+ 112              	#endif
+ 113              	#if PORT_SWITCHED_REGIONS_NUMBER == 3
+ 114              	                push    {r4, r5, r6, r7, r8, r9}
+ 115              	#endif
+ 116              	#if PORT_SWITCHED_REGIONS_NUMBER == 4
+ 117              	                push    {r4, r5, r6, r7, r8, r9, r10, r11}
+ 118              	#endif
+ 119              	#endif
+ 120              	
+ 121 0008 C1F80CD0 	                str     sp, [r1, #CONTEXT_OFFSET]
+ 122              	#if (CORTEX_SIMPLIFIED_PRIORITY == FALSE) &&                                \
+ 123              	    ((CORTEX_MODEL == 3) || (CORTEX_MODEL == 4))
+ 124              	                /* Workaround for ARM errata 752419, only applied if
+ 125              	                   condition exists for it to be triggered.*/
+ 126              	                ldr     r3, [r0, #CONTEXT_OFFSET]
+ 127              	                mov     sp, r3
+ 128              	#else
+ 129 000c D0F80CD0 	                ldr     sp, [r0, #CONTEXT_OFFSET]
+ 130              	#endif
+ 131              	
+ 132              	#if PORT_SWITCHED_REGIONS_NUMBER > 0
+ARM GAS  /tmp/ccGPUBGY.s 			page 9
+
+
+ 133              	                /* Restoring MPU context.*/
+ 134              	#if PORT_SWITCHED_REGIONS_NUMBER == 1
+ 135              	                pop     {r4, r5}
+ 136              	#endif
+ 137              	#if PORT_SWITCHED_REGIONS_NUMBER == 2
+ 138              	                pop     {r4, r5, r6, r7}
+ 139              	#endif
+ 140              	#if PORT_SWITCHED_REGIONS_NUMBER == 3
+ 141              	                pop     {r4, r5, r6, r7, r8, r9}
+ 142              	#endif
+ 143              	#if PORT_SWITCHED_REGIONS_NUMBER == 4
+ 144              	                pop     {r4, r5, r6, r7, r8, r9, r10, r11}
+ 145              	#endif
+ 146              	#if PORT_SWITCHED_REGIONS_NUMBER >= 1
+ 147              	                mov     r3, #0
+ 148              	                str     r3, [r2, #-4]   /* RNR */
+ 149              	                stm     r2, {r4, r5}    /* RBAR, RASR */
+ 150              	#endif
+ 151              	#if PORT_SWITCHED_REGIONS_NUMBER >= 2
+ 152              	                add     r3, #1
+ 153              	                str     r3, [r2, #-4]   /* RNR */
+ 154              	                stm     r2, {r6, r7}    /* RBAR, RASR */
+ 155              	#endif
+ 156              	#if PORT_SWITCHED_REGIONS_NUMBER >= 3
+ 157              	                add     r3, #1
+ 158              	                str     r3, [r2, #-4]   /* RNR */
+ 159              	                stm     r2, {r8, r9}    /* RBAR, RASR */
+ 160              	#endif
+ 161              	#if PORT_SWITCHED_REGIONS_NUMBER >= 4
+ 162              	                add     r3, #1
+ 163              	                str     r3, [r2, #-4]   /* RNR */
+ 164              	                stm     r2, {r10, r11}  /* RBAR, RASR */
+ 165              	#endif
+ 166              	#endif
+ 167              	
+ 168              	#if CORTEX_USE_FPU
+ 169              	                /* Restoring FPU context.*/
+ 170 0010 BDEC108A 	                vpop    {s16-s31}
+ 171              	#endif
+ 172 0014 BDE8F08F 	                pop     {r4, r5, r6, r7, r8, r9, r10, r11, pc}
+ 173              	
+ 174              	/*--------------------------------------------------------------------------*
+ 175              	 * Start a thread by invoking its work function.
+ 176              	 *
+ 177              	 * Threads execution starts here, the code leaves the system critical zone
+ 178              	 * and then jumps into the thread function passed in register R4. The
+ 179              	 * register R5 contains the thread parameter. The function chThdExit() is
+ 180              	 * called on thread function return.
+ 181              	 *--------------------------------------------------------------------------*/
+ 182              	                .thumb_func
+ 183              	                .globl  _port_thread_start
+ 184              	_port_thread_start:
+ 185              	#if CH_DBG_ENABLE_STACK_CHECK && PORT_ENABLE_GUARD_PAGES
+ 186              	                bl      _port_set_region
+ 187              	#endif
+ 188              	#if CH_DBG_SYSTEM_STATE_CHECK
+ 189              	                bl      _dbg_check_unlock
+ARM GAS  /tmp/ccGPUBGY.s 			page 10
+
+
+ 190              	#endif
+ 191              	#if CH_DBG_STATISTICS
+ 192              	                bl      _stats_stop_measure_crit_thd
+ 193              	#endif
+ 194              	#if CORTEX_SIMPLIFIED_PRIORITY
+ 195              	                cpsie   i
+ 196              	#else
+ 197 0018 0023     	                movs    r3, #0              /* CORTEX_BASEPRI_DISABLED */
+ 198 001a 83F31188 	                msr     BASEPRI, r3
+ 199              	#endif
+ 200 001e 2846     	                mov     r0, r5
+ 201 0020 A047     	                blx     r4
+ 202 0022 0020     	                movs    r0, #0              /* MSG_OK */
+ 203 0024 FFF7FEFF 	                bl      chThdExit
+ 204 0028 FEE7     	_zombies:       b       _zombies
+ 205              	
+ 206              	/*--------------------------------------------------------------------------*
+ 207              	 * Post-IRQ switch code.
+ 208              	 *
+ 209              	 * Exception handlers return here for context switching.
+ 210              	 *--------------------------------------------------------------------------*/
+ 211              	                .thumb_func
+ 212              	                .globl  _port_switch_from_isr
+ 213              	_port_switch_from_isr:
+ 214              	#if CH_DBG_STATISTICS
+ 215              	                bl      _stats_start_measure_crit_thd
+ 216              	#endif
+ 217              	#if CH_DBG_SYSTEM_STATE_CHECK
+ 218              	                bl      _dbg_check_lock
+ 219              	#endif
+ 220 002a FFF7FEFF 	                bl      chSchDoReschedule
+ 221              	#if CH_DBG_SYSTEM_STATE_CHECK
+ 222              	                bl      _dbg_check_unlock
+ 223              	#endif
+ 224              	#if CH_DBG_STATISTICS
+ 225              	                bl      _stats_stop_measure_crit_thd
+ 226              	#endif
+ 227              	                .globl  _port_exit_from_isr
+ 228              	_port_exit_from_isr:
+ 229              	#if CORTEX_SIMPLIFIED_PRIORITY
+ 230              	                movw    r3, #:lower16:SCB_ICSR
+ 231              	                movt    r3, #:upper16:SCB_ICSR
+ 232              	                mov     r2, ICSR_PENDSVSET
+ 233              	                str     r2, [r3, #0]
+ 234              	                cpsie   i
+ 235              	#else /* !CORTEX_SIMPLIFIED_PRIORITY */
+ 236 002e 00DF     	                svc     #0
+ 237              	#endif /* !CORTEX_SIMPLIFIED_PRIORITY */
+ 238 0030 FEE7     	.L1:            b       .L1
+ARM GAS  /tmp/ccGPUBGY.s 			page 11
+
+
+DEFINED SYMBOLS
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:77     .text:0000000000000000 _port_switch
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:78     .text:0000000000000000 $t
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:184    .text:0000000000000018 _port_thread_start
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:204    .text:0000000000000028 _zombies
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:213    .text:000000000000002a _port_switch_from_isr
+../../../external/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/chcoreasm_v7m.S:228    .text:000000000000002e _port_exit_from_isr
+
+UNDEFINED SYMBOLS
+chThdExit
+chSchDoReschedule

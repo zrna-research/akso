@@ -1,0 +1,240 @@
+
+/**
+ * Copyright (C) 2013, 2014, 2015 Johannes Taelman
+ *
+ * This file is part of Axoloti.
+ *
+ * Axoloti is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Axoloti is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Axoloti. If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "ch.h"
+#include "hal.h"
+#include "axoloti_defines.h"
+#include "axoloti_board.h"
+
+void axoloti_board_init(void) {
+#if BOARD_AXOLOTI_V05
+#if BOARD_AKSO
+    RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+    RCC->AHB1RSTR |= RCC_AHB1RSTR_DMA2RST;
+    RCC->AHB1RSTR &= ~RCC_AHB1RSTR_DMA2RST;
+#else
+    RCC->AHB1ENR |= RCC_AHB1ENR_DMA2DEN;
+    RCC->AHB1RSTR |= RCC_AHB1RSTR_DMA2DRST;
+    RCC->AHB1RSTR &= ~RCC_AHB1RSTR_DMA2DRST;
+#endif
+#endif
+}
+
+/* Total number of channels to be sampled by a single ADC operation.*/
+#define ADC_GRP1_NUM_CHANNELS   15
+
+/* Depth of the conversion buffer, channels are sampled four times each.*/
+#define ADC_GRP1_BUF_DEPTH      1
+
+
+void adc_configpads(void) {
+}
+
+/*
+ * ADC samples buffer.
+ */
+#if BOARD_AKSO
+adcsample_t adcvalues[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH] ADC3_MEM_FW;
+adcsample_t adc3values[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH] ADC3_MEM_FW;
+#else
+unsigned short adcvalues[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH] __attribute__ ((aligned (32)));
+#endif
+
+/*
+ * ADC conversion group.
+ * Mode:        Linear buffer, 8 samples of 1 channel, SW triggered.
+ * Channels:    IN11.
+ */
+
+#if !BOARD_AKSO
+static const ADCConversionGroup adcgrpcfg1 = {
+	TRUE,      //circular buffer mode
+    ADC_GRP1_NUM_CHANNELS, //Number of the analog channels
+    0, //Callback function (not needed here)
+    0, //Error callback
+    0, /* CR1 */
+    0, /* CR2 */
+    ADC_SMPR1_SMP_AN10(ADC_SAMPLE_144) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_144)
+    | ADC_SMPR1_SMP_AN12(ADC_SAMPLE_144) | ADC_SMPR1_SMP_AN13(ADC_SAMPLE_144)
+    | ADC_SMPR1_SMP_AN14(ADC_SAMPLE_144) | ADC_SMPR1_SMP_AN15(ADC_SAMPLE_144)
+    | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144) | ADC_SMPR1_SMP_VREF(ADC_SAMPLE_144), //sample times ch10-18
+
+    ADC_SMPR2_SMP_AN0(ADC_SAMPLE_144) | ADC_SMPR2_SMP_AN1(ADC_SAMPLE_144)
+    | ADC_SMPR2_SMP_AN2(ADC_SAMPLE_144) | ADC_SMPR2_SMP_AN3(ADC_SAMPLE_144)
+    | ADC_SMPR2_SMP_AN4(ADC_SAMPLE_144) | ADC_SMPR2_SMP_AN5(ADC_SAMPLE_144)
+    | ADC_SMPR2_SMP_AN6(ADC_SAMPLE_144) | ADC_SMPR2_SMP_AN7(ADC_SAMPLE_144)
+    | ADC_SMPR2_SMP_AN8(ADC_SAMPLE_144) | ADC_SMPR2_SMP_AN9(ADC_SAMPLE_144), //sample times ch0-9
+
+	0, /* HTR */
+	0, /* LTR */
+    ADC_SQR1_SQ13_N(ADC_CHANNEL_IN12) | ADC_SQR1_SQ14_N(ADC_CHANNEL_IN13)
+    | ADC_SQR1_SQ15_N(ADC_CHANNEL_IN14) | ADC_SQR1_SQ16_N(ADC_CHANNEL_IN15)
+    | ADC_SQR1_NUM_CH(ADC_GRP1_NUM_CHANNELS), //SQR1: Conversion group sequence 13...16 + sequence length
+
+    ADC_SQR2_SQ7_N(ADC_CHANNEL_IN6) | ADC_SQR2_SQ8_N(ADC_CHANNEL_IN7)
+    | ADC_SQR2_SQ9_N(ADC_CHANNEL_IN8) | ADC_SQR2_SQ10_N(ADC_CHANNEL_IN9)
+    | ADC_SQR2_SQ11_N(ADC_CHANNEL_IN10) | ADC_SQR2_SQ12_N(ADC_CHANNEL_IN11), //SQR2: Conversion group sequence 7...12
+
+    ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0) | ADC_SQR3_SQ2_N(ADC_CHANNEL_IN1)
+    | ADC_SQR3_SQ3_N(ADC_CHANNEL_IN2) | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN3)
+    | ADC_SQR3_SQ5_N(ADC_CHANNEL_IN4) | ADC_SQR3_SQ6_N(ADC_CHANNEL_IN5) //SQR3: Conversion group sequence 1...6
+};
+#endif
+
+#if BOARD_AKSO
+const ADCConfig adccfg1 = {
+  .difsel       = 0U
+};
+
+// ADC PINS
+// pa0 -> ADC1_INP16, (PH5, ADC3_INP16)
+// pa1 -> ADC1_INP17, (unique)
+// pa2 -> ADC12_INP14, (PH3, ADC3_INP14)
+// pa3 -> ADC12_INP15, (PH4, ADC3_INP15)
+// pa4 -> ADC12_INP18, (unique)
+// pa5 -> ADC12_INP19, (unique)
+
+// pa6 -> ADC12_INP3, (PF7, ADC3_INP3)
+// pa7 -> ADC12_INP7, (PF8, ADC3_INP7)
+
+// pb0 -> ADC12_INP9, (PF4, ADC3_INP9)
+// pb1 -> ADC12_INP5, (PF3, ADC3_INP5)
+
+// pc0 -> ADC123_INP10, (unique)
+// pc1 -> ADC123_INP11, (unique)
+
+// pc2 -> ADC3_INP0, (unique)
+// pc3 -> ADC3_INP1, (unique)
+// pc4 -> ADC12_INP4, (PF5, ADC3_INP4)
+
+
+const ADCConversionGroup adcgrpcfg1 = {
+    .circular     = TRUE,
+    .num_channels = 13,
+    .end_cb       = NULL,
+    .error_cb     = NULL,
+    .cfgr         = ADC_CFGR_RES_12BITS,
+    .cfgr2        = 0U,
+    .ccr          = 0U,
+    .pcsel        = (
+        ADC_SELMASK_IN16 | ADC_SELMASK_IN17 |
+        ADC_SELMASK_IN14 | ADC_SELMASK_IN15 |
+        ADC_SELMASK_IN18 | ADC_SELMASK_IN19 |
+        ADC_SELMASK_IN3 | ADC_SELMASK_IN7 |
+        ADC_SELMASK_IN9 | ADC_SELMASK_IN5 |
+        ADC_SELMASK_IN10 | ADC_SELMASK_IN11 |
+        ADC_SELMASK_IN4),
+    .ltr1         = 0x00000000U,
+    .htr1         = 0x03FFFFFFU,
+    .ltr2         = 0x00000000U,
+    .htr2         = 0x03FFFFFFU,
+    .ltr3         = 0x00000000U,
+    .htr3         = 0x03FFFFFFU,
+    .smpr         = {
+        ADC_SMPR1_SMP_AN3(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR1_SMP_AN7(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR1_SMP_AN9(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR1_SMP_AN5(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR1_SMP_AN4(ADC_SMPR_SMP_8P5),
+
+        ADC_SMPR2_SMP_AN10(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN11(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN14(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN15(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN16(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN17(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN18(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR2_SMP_AN19(ADC_SMPR_SMP_8P5)
+    },
+    .sqr          = {
+        ADC_SQR1_SQ1_N(ADC_CHANNEL_IN16) |
+        ADC_SQR1_SQ2_N(ADC_CHANNEL_IN17) |
+        ADC_SQR1_SQ3_N(ADC_CHANNEL_IN14) |
+        ADC_SQR1_SQ4_N(ADC_CHANNEL_IN15),
+        ADC_SQR2_SQ5_N(ADC_CHANNEL_IN18) |
+        ADC_SQR2_SQ6_N(ADC_CHANNEL_IN19) |
+        ADC_SQR2_SQ7_N(ADC_CHANNEL_IN3) |
+        ADC_SQR2_SQ8_N(ADC_CHANNEL_IN7) |
+        ADC_SQR2_SQ9_N(ADC_CHANNEL_IN9),
+        ADC_SQR3_SQ10_N(ADC_CHANNEL_IN5) |
+        ADC_SQR3_SQ11_N(ADC_CHANNEL_IN10) |
+        ADC_SQR3_SQ12_N(ADC_CHANNEL_IN11) |
+        ADC_SQR3_SQ13_N(ADC_CHANNEL_IN4)
+        ,
+        0
+    }
+};
+
+const ADCConversionGroup adcgrpcfg3 = {
+    .circular     = TRUE,
+    .num_channels = 2,
+    .end_cb       = NULL,
+    .error_cb     = NULL,
+    .cfgr         = ADC_CFGR_RES_12BITS,
+    .cfgr2        = 0U,
+    .ccr          = 0U,
+    .pcsel        = (ADC_SELMASK_IN0 | ADC_SELMASK_IN1),
+    .ltr1         = 0x00000000U,
+    .htr1         = 0x03FFFFFFU,
+    .ltr2         = 0x00000000U,
+    .htr2         = 0x03FFFFFFU,
+    .ltr3         = 0x00000000U,
+    .htr3         = 0x03FFFFFFU,
+    .smpr         = {
+        ADC_SMPR1_SMP_AN0(ADC_SMPR_SMP_8P5) |
+        ADC_SMPR1_SMP_AN1(ADC_SMPR_SMP_8P5),
+        0
+    },
+    .sqr          = {
+        ADC_SQR1_SQ1_N(ADC_CHANNEL_IN0) |
+        ADC_SQR1_SQ2_N(ADC_CHANNEL_IN1),
+        0,
+        0,
+        0
+    }
+};
+#endif
+
+void adc_init(void) {
+    adc_configpads();
+#if BOARD_AKSO
+    adcStart(&ADCD1, &adccfg1);
+    adcStartConversion(&ADCD1, &adcgrpcfg1, adcvalues, ADC_GRP1_BUF_DEPTH);
+
+    adcStart(&ADCD3, &adccfg1);
+    adcStartConversion(&ADCD3, &adcgrpcfg3, adc3values, ADC_GRP1_BUF_DEPTH);
+#else
+    adcStart(&ADCD1, NULL);
+    adcSTM32EnableTSVREFE();
+    ADC1->JSQR = ADC_CHANNEL_VREFINT<<15;
+    adcStartConversion(&ADCD1, &adcgrpcfg1, adcvalues, ADC_GRP1_BUF_DEPTH);
+#endif
+
+}
+
+void adc_convert(void) {
+#if BOARD_AKSO
+    adcStartConversion(&ADCD1, &adcgrpcfg1, adcvalues, ADC_GRP1_BUF_DEPTH);
+    cacheBufferInvalidate(adcvalues, sizeof(adcvalues) / sizeof(adcsample_t));
+
+    adcStartConversion(&ADCD3, &adcgrpcfg3, adc3values, ADC_GRP1_BUF_DEPTH);
+    cacheBufferInvalidate(adc3values, sizeof(adc3values) / sizeof(adcsample_t));
+#else
+    ADC1->CR2 |= ADC_CR2_SWSTART | ADC_CR2_JSWSTART;
+#endif
+}

@@ -1,0 +1,8 @@
+openocd -f openocd.cfg -c "stm32h7x.cpu0 configure -rtos auto"
+arm-none-eabi-gdb firmware/build/axoloti.elf
+// st-util
+tar extended-remote :4242
+// openocd
+tar extended-remote :3333
+monitor reset halt
+load

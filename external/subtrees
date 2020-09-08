@@ -1,0 +1,5 @@
+git subtree pull -P external/ChibiOS git@github.com:ChibiOS/ChibiOS.git stable_20.3.x --squash
+git subtree pull -P ChibiOS-Contrib git@github.com:ChibiOS/ChibiOS-Contrib.git chibios-20.3.x --squash
+git subtree pull -P axoloti git@gitlab.com:nicolasmiller/axoloti.git exp-fork --squash
+git subtree pull -P axoloti/firmware/rack git@github.com:VCVRack/Rack.git v1 --squash
+git subtree pull -P axoloti/firmware/rack/plugins/Fundamental git@github.com:VCVRack/Fundamental.git v1 --squash

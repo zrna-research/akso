@@ -1,0 +1,65 @@
+/**
+ * Copyright (C) 2013, 2014 Johannes Taelman
+ *
+ * This file is part of Axoloti.
+ *
+ * Axoloti is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Axoloti is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Axoloti. If not, see <http://www.gnu.org/licenses/>.
+ */
+package axoloti.realunits;
+
+import axoloti.datatypes.Value;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ *
+ * @author Johannes Taelman
+ */
+public class SquareDB implements NativeToReal {
+
+    final double maxGain;
+
+    public SquareDB(double maxGain) {
+        this.maxGain = maxGain;
+    }
+
+    @Override
+    public String convertToReal(Value v) {
+        if (v.getDouble() != 0) {
+            return (String.format("%.1fdB", maxGain + 40 * Math.log10(Math.abs(v.getDouble() / 64.0))));
+        } else {
+            return "-infdB";
+        }
+    }
+
+    @Override
+    public double convertFromReal(String s) throws ParseException {
+        Pattern pattern = Pattern.compile("(?<num>[\\d\\.\\-\\+]*)\\p{Space}*[dD][bB]?");
+        Matcher matcher = pattern.matcher(s);
+
+        if (matcher.matches()) {
+            double num;
+
+            try {
+                num = Float.parseFloat(matcher.group("num"));
+            } catch (java.lang.NumberFormatException ex) {
+                throw new ParseException("Not SquareDB", 0);
+            }
+
+            return Math.pow(10, (num - maxGain) / 40) * 64.0;
+        }
+
+        throw new ParseException("Not SquareDB", 0);
+    }
+}

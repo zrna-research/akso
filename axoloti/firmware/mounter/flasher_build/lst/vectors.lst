@@ -1,0 +1,1458 @@
+ARM GAS  /tmp/ccdCRj3H.s 			page 1
+
+
+   1              	# 1 "../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S"
+   1              	/*
+   1              	...
+   0              	
+   0              	
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+   3              	
+   4              	    Licensed under the Apache License, Version 2.0 (the "License");
+   5              	    you may not use this file except in compliance with the License.
+   6              	    You may obtain a copy of the License at
+   7              	
+   8              	        http://www.apache.org/licenses/LICENSE-2.0
+   9              	
+  10              	    Unless required by applicable law or agreed to in writing, software
+  11              	    distributed under the License is distributed on an "AS IS" BASIS,
+  12              	    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  13              	    See the License for the specific language governing permissions and
+  14              	    limitations under the License.
+  15              	*/
+  16              	
+  17              	/**
+  18              	 * @file    ARMCMx/GCC/vectors.S
+  19              	 * @brief   Interrupt vectors for Cortex-Mx devices.
+  20              	 *
+  21              	 * @defgroup ARMCMx_GCC_VECTORS Cortex-Mx Interrupt Vectors
+  22              	 * @{
+  23              	 */
+  24              	
+  25              	#define _FROM_ASM_
+  26              	#include "cmparams.h"
+   1              	/*
+   2              	    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+   3              	
+   4              	    Licensed under the Apache License, Version 2.0 (the "License");
+   5              	    you may not use this file except in compliance with the License.
+   6              	    You may obtain a copy of the License at
+   7              	
+   8              	        http://www.apache.org/licenses/LICENSE-2.0
+   9              	
+  10              	    Unless required by applicable law or agreed to in writing, software
+  11              	    distributed under the License is distributed on an "AS IS" BASIS,
+  12              	    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  13              	    See the License for the specific language governing permissions and
+  14              	    limitations under the License.
+  15              	*/
+  16              	
+  17              	/**
+  18              	 * @file    STM32H7xx/cmparams.h
+  19              	 * @brief   ARM Cortex-M7 parameters for the STM32F4xx.
+  20              	 *
+  21              	 * @defgroup ARMCMx_STM32H7xx STM32H7xx Specific Parameters
+  22              	 * @ingroup ARMCMx_SPECIFIC
+  23              	 * @details This file contains the Cortex-M7 specific parameters for the
+  24              	 *          STM32H7xx platform.
+  25              	 * @{
+  26              	 */
+  27              	
+ARM GAS  /tmp/ccdCRj3H.s 			page 2
+
+
+  28              	#ifndef CMPARAMS_H
+  29              	#define CMPARAMS_H
+  30              	
+  31              	/**
+  32              	 * @brief   Cortex core model.
+  33              	 */
+  34              	#define CORTEX_MODEL            7
+  35              	
+  36              	/**
+  37              	 * @brief   Floating Point unit presence.
+  38              	 */
+  39              	#define CORTEX_HAS_FPU          1
+  40              	
+  41              	/**
+  42              	 * @brief   Number of bits in priority masks.
+  43              	 */
+  44              	#define CORTEX_PRIORITY_BITS    4
+  45              	
+  46              	/* If the device type is not externally defined, for example from the Makefile,
+  47              	   then a file named board.h is included. This file must contain a device
+  48              	   definition compatible with the vendor include file.*/
+  49              	#if !defined(STM32H742xx) && !defined(STM32H750xx) &&                       \
+  50              	    !defined(STM32H743xx) && !defined(STM32H753xx) &&                       \
+  51              	    !defined(STM32H747xx) && !defined(STM32H757xx) &&                       \
+  52              	    !defined(STM32H745xx) && !defined(STM32H755xx) &&                       \
+  53              	    !defined(STM32H7B0xx) && !defined(STM32H7B0xxQ) &&                      \
+  54              	    !defined(STM32H7A3xx) && !defined(STM32H7A3xxQ) &&                      \
+  55              	    !defined(STM32H7B3xx) && !defined(STM32H7B3xxQ)
+  56              	#include "board.h"
+   1              	/*
+  57              	#endif
+  27              	
+  28              	#if (CORTEX_NUM_VECTORS % 8) != 0
+  29              	#error "the constant CORTEX_NUM_VECTORS must be a multiple of 8"
+  30              	#endif
+  31              	
+  32              	#if (CORTEX_NUM_VECTORS < 8) || (CORTEX_NUM_VECTORS > 240)
+  33              	#error "the constant CORTEX_NUM_VECTORS must be between 8 and 240 inclusive"
+  34              	#endif
+  35              	
+  36              	/*===========================================================================*/
+  37              	/* Module constants.                                                         */
+  38              	/*===========================================================================*/
+  39              	
+  40              	/*===========================================================================*/
+  41              	/* Module pre-compile time settings.                                         */
+  42              	/*===========================================================================*/
+  43              	
+  44              	/*===========================================================================*/
+  45              	/* Code section.                                                             */
+  46              	/*===========================================================================*/
+  47              	
+  48              	#if !defined(__DOXYGEN__)
+  49              	
+  50              	        .syntax unified
+  51              	        .cpu    cortex-m0
+  52              	        .thumb
+ARM GAS  /tmp/ccdCRj3H.s 			page 3
+
+
+  53              	
+  54              	        .section    .vectors, "ax"
+  55              	        .align      4
+  56              	        .globl      _vectors
+  57              	_vectors:
+  58 0000 00000000 	        .long       __main_stack_end__
+  59 0004 00000000 	        .long       Reset_Handler
+  60 0008 00000000 	        .long       NMI_Handler
+  61 000c 00000000 	        .long       HardFault_Handler
+  62 0010 00000000 	        .long       MemManage_Handler
+  63 0014 00000000 	        .long       BusFault_Handler
+  64 0018 00000000 	        .long       UsageFault_Handler
+  65 001c 00000000 	        .long       Vector1C
+  66 0020 00000000 	        .long       Vector20
+  67 0024 00000000 	        .long       Vector24
+  68 0028 00000000 	        .long       Vector28
+  69 002c 00000000 	        .long       SVC_Handler
+  70 0030 00000000 	        .long       DebugMon_Handler
+  71 0034 00000000 	        .long       Vector34
+  72 0038 00000000 	        .long       PendSV_Handler
+  73 003c 00000000 	        .long       SysTick_Handler
+  74 0040 00000000 	        .long       Vector40,   Vector44,   Vector48,   Vector4C
+  74      00000000 
+  74      00000000 
+  74      00000000 
+  75              	#if CORTEX_NUM_VECTORS > 4
+  76 0050 00000000 	        .long       Vector50,   Vector54,   Vector58,   Vector5C
+  76      00000000 
+  76      00000000 
+  76      00000000 
+  77              	#endif
+  78              	#if CORTEX_NUM_VECTORS > 8
+  79 0060 00000000 	        .long       Vector60,   Vector64,   Vector68,   Vector6C
+  79      00000000 
+  79      00000000 
+  79      00000000 
+  80              	#endif
+  81              	#if CORTEX_NUM_VECTORS > 12
+  82 0070 00000000 	        .long       Vector70,   Vector74,   Vector78,   Vector7C
+  82      00000000 
+  82      00000000 
+  82      00000000 
+  83              	#endif
+  84              	#if CORTEX_NUM_VECTORS > 16
+  85 0080 00000000 	        .long       Vector80,   Vector84,   Vector88,   Vector8C
+  85      00000000 
+  85      00000000 
+  85      00000000 
+  86              	#endif
+  87              	#if CORTEX_NUM_VECTORS > 20
+  88 0090 00000000 	        .long       Vector90,   Vector94,   Vector98,   Vector9C
+  88      00000000 
+  88      00000000 
+  88      00000000 
+  89              	#endif
+  90              	#if CORTEX_NUM_VECTORS > 24
+  91 00a0 00000000 	        .long       VectorA0,   VectorA4,   VectorA8,   VectorAC
+ARM GAS  /tmp/ccdCRj3H.s 			page 4
+
+
+  91      00000000 
+  91      00000000 
+  91      00000000 
+  92              	#endif
+  93              	#if CORTEX_NUM_VECTORS > 28
+  94 00b0 00000000 	        .long       VectorB0,   VectorB4,   VectorB8,   VectorBC
+  94      00000000 
+  94      00000000 
+  94      00000000 
+  95              	#endif
+  96              	#if CORTEX_NUM_VECTORS > 32
+  97 00c0 00000000 	        .long       VectorC0,   VectorC4,   VectorC8,   VectorCC
+  97      00000000 
+  97      00000000 
+  97      00000000 
+  98              	#endif
+  99              	#if CORTEX_NUM_VECTORS > 36
+ 100 00d0 00000000 	        .long       VectorD0,   VectorD4,   VectorD8,   VectorDC
+ 100      00000000 
+ 100      00000000 
+ 100      00000000 
+ 101              	#endif
+ 102              	#if CORTEX_NUM_VECTORS > 40
+ 103 00e0 00000000 	        .long       VectorE0,   VectorE4,   VectorE8,   VectorEC
+ 103      00000000 
+ 103      00000000 
+ 103      00000000 
+ 104              	#endif
+ 105              	#if CORTEX_NUM_VECTORS > 44
+ 106 00f0 00000000 	        .long       VectorF0,   VectorF4,   VectorF8,   VectorFC
+ 106      00000000 
+ 106      00000000 
+ 106      00000000 
+ 107              	#endif
+ 108              	#if CORTEX_NUM_VECTORS > 48
+ 109 0100 00000000 	        .long       Vector100,  Vector104,  Vector108,  Vector10C
+ 109      00000000 
+ 109      00000000 
+ 109      00000000 
+ 110              	#endif
+ 111              	#if CORTEX_NUM_VECTORS > 52
+ 112 0110 00000000 	        .long       Vector110,  Vector114,  Vector118,  Vector11C
+ 112      00000000 
+ 112      00000000 
+ 112      00000000 
+ 113              	#endif
+ 114              	#if CORTEX_NUM_VECTORS > 56
+ 115 0120 00000000 	        .long       Vector120,  Vector124,  Vector128,  Vector12C
+ 115      00000000 
+ 115      00000000 
+ 115      00000000 
+ 116              	#endif
+ 117              	#if CORTEX_NUM_VECTORS > 60
+ 118 0130 00000000 	        .long       Vector130,  Vector134,  Vector138,  Vector13C
+ 118      00000000 
+ 118      00000000 
+ 118      00000000 
+ARM GAS  /tmp/ccdCRj3H.s 			page 5
+
+
+ 119              	#endif
+ 120              	#if CORTEX_NUM_VECTORS > 64
+ 121 0140 00000000 	        .long       Vector140,  Vector144,  Vector148,  Vector14C
+ 121      00000000 
+ 121      00000000 
+ 121      00000000 
+ 122              	#endif
+ 123              	#if CORTEX_NUM_VECTORS > 68
+ 124 0150 00000000 	        .long       Vector150,  Vector154,  Vector158,  Vector15C
+ 124      00000000 
+ 124      00000000 
+ 124      00000000 
+ 125              	#endif
+ 126              	#if CORTEX_NUM_VECTORS > 72
+ 127 0160 00000000 	        .long       Vector160,  Vector164,  Vector168,  Vector16C
+ 127      00000000 
+ 127      00000000 
+ 127      00000000 
+ 128              	#endif
+ 129              	#if CORTEX_NUM_VECTORS > 76
+ 130 0170 00000000 	        .long       Vector170,  Vector174,  Vector178,  Vector17C
+ 130      00000000 
+ 130      00000000 
+ 130      00000000 
+ 131              	#endif
+ 132              	#if CORTEX_NUM_VECTORS > 80
+ 133 0180 00000000 	        .long       Vector180,  Vector184,  Vector188,  Vector18C
+ 133      00000000 
+ 133      00000000 
+ 133      00000000 
+ 134              	#endif
+ 135              	#if CORTEX_NUM_VECTORS > 84
+ 136 0190 00000000 	        .long       Vector190,  Vector194,  Vector198,  Vector19C
+ 136      00000000 
+ 136      00000000 
+ 136      00000000 
+ 137              	#endif
+ 138              	#if CORTEX_NUM_VECTORS > 88
+ 139 01a0 00000000 	        .long       Vector1A0,  Vector1A4,  Vector1A8,  Vector1AC
+ 139      00000000 
+ 139      00000000 
+ 139      00000000 
+ 140              	#endif
+ 141              	#if CORTEX_NUM_VECTORS > 92
+ 142 01b0 00000000 	        .long       Vector1B0,  Vector1B4,  Vector1B8,  Vector1BC
+ 142      00000000 
+ 142      00000000 
+ 142      00000000 
+ 143              	#endif
+ 144              	#if CORTEX_NUM_VECTORS > 96
+ 145 01c0 00000000 	        .long       Vector1C0,  Vector1C4,  Vector1C8,  Vector1CC
+ 145      00000000 
+ 145      00000000 
+ 145      00000000 
+ 146              	#endif
+ 147              	#if CORTEX_NUM_VECTORS > 100
+ 148 01d0 00000000 	        .long       Vector1D0,  Vector1D4,  Vector1D8,  Vector1DC
+ARM GAS  /tmp/ccdCRj3H.s 			page 6
+
+
+ 148      00000000 
+ 148      00000000 
+ 148      00000000 
+ 149              	#endif
+ 150              	#if CORTEX_NUM_VECTORS > 104
+ 151 01e0 00000000 	        .long       Vector1E0,  Vector1E4,  Vector1E8,  Vector1EC
+ 151      00000000 
+ 151      00000000 
+ 151      00000000 
+ 152              	#endif
+ 153              	#if CORTEX_NUM_VECTORS > 108
+ 154 01f0 00000000 	        .long       Vector1F0,  Vector1F4,  Vector1F8,  Vector1FC
+ 154      00000000 
+ 154      00000000 
+ 154      00000000 
+ 155              	#endif
+ 156              	#if CORTEX_NUM_VECTORS > 112
+ 157 0200 00000000 	        .long       Vector200,  Vector204,  Vector208,  Vector20C
+ 157      00000000 
+ 157      00000000 
+ 157      00000000 
+ 158              	#endif
+ 159              	#if CORTEX_NUM_VECTORS > 116
+ 160 0210 00000000 	        .long       Vector210,  Vector214,  Vector218,  Vector21C
+ 160      00000000 
+ 160      00000000 
+ 160      00000000 
+ 161              	#endif
+ 162              	#if CORTEX_NUM_VECTORS > 120
+ 163 0220 00000000 	        .long       Vector220,  Vector224,  Vector228,  Vector22C
+ 163      00000000 
+ 163      00000000 
+ 163      00000000 
+ 164              	#endif
+ 165              	#if CORTEX_NUM_VECTORS > 124
+ 166 0230 00000000 	        .long       Vector230,  Vector234,  Vector238,  Vector23C
+ 166      00000000 
+ 166      00000000 
+ 166      00000000 
+ 167              	#endif
+ 168              	#if CORTEX_NUM_VECTORS > 128
+ 169 0240 00000000 	        .long       Vector240,  Vector244,  Vector248,  Vector24C
+ 169      00000000 
+ 169      00000000 
+ 169      00000000 
+ 170              	#endif
+ 171              	#if CORTEX_NUM_VECTORS > 132
+ 172 0250 00000000 	        .long       Vector250,  Vector254,  Vector258,  Vector25C
+ 172      00000000 
+ 172      00000000 
+ 172      00000000 
+ 173              	#endif
+ 174              	#if CORTEX_NUM_VECTORS > 136
+ 175 0260 00000000 	        .long       Vector260,  Vector264,  Vector268,  Vector26C
+ 175      00000000 
+ 175      00000000 
+ 175      00000000 
+ARM GAS  /tmp/ccdCRj3H.s 			page 7
+
+
+ 176              	#endif
+ 177              	#if CORTEX_NUM_VECTORS > 140
+ 178 0270 00000000 	        .long       Vector270,  Vector274,  Vector278,  Vector27C
+ 178      00000000 
+ 178      00000000 
+ 178      00000000 
+ 179              	#endif
+ 180              	#if CORTEX_NUM_VECTORS > 144
+ 181 0280 00000000 	        .long       Vector280,  Vector284,  Vector288,  Vector28C
+ 181      00000000 
+ 181      00000000 
+ 181      00000000 
+ 182              	#endif
+ 183              	#if CORTEX_NUM_VECTORS > 148
+ 184 0290 00000000 	        .long       Vector290,  Vector294,  Vector298,  Vector29C
+ 184      00000000 
+ 184      00000000 
+ 184      00000000 
+ 185              	#endif
+ 186              	#if CORTEX_NUM_VECTORS > 152
+ 187              	        .long       Vector2A0,  Vector2A4,  Vector2A8,  Vector2AC
+ 188              	#endif
+ 189              	#if CORTEX_NUM_VECTORS > 156
+ 190              	        .long       Vector2B0,  Vector2B4,  Vector2B8,  Vector2BC
+ 191              	#endif
+ 192              	#if CORTEX_NUM_VECTORS > 160
+ 193              	        .long       Vector2C0,  Vector2C4,  Vector2C8,  Vector2CC
+ 194              	#endif
+ 195              	#if CORTEX_NUM_VECTORS > 164
+ 196              	        .long       Vector2D0,  Vector2D4,  Vector2D8,  Vector2DC
+ 197              	#endif
+ 198              	#if CORTEX_NUM_VECTORS > 168
+ 199              	        .long       Vector2E0,  Vector2E4,  Vector2E8,  Vector2EC
+ 200              	#endif
+ 201              	#if CORTEX_NUM_VECTORS > 172
+ 202              	        .long       Vector2F0,  Vector2F4,  Vector2F8,  Vector2FC
+ 203              	#endif
+ 204              	#if CORTEX_NUM_VECTORS > 176
+ 205              	        .long       Vector300,  Vector304,  Vector308,  Vector30C
+ 206              	#endif
+ 207              	#if CORTEX_NUM_VECTORS > 180
+ 208              	        .long       Vector310,  Vector314,  Vector318,  Vector31C
+ 209              	#endif
+ 210              	#if CORTEX_NUM_VECTORS > 184
+ 211              	        .long       Vector320,  Vector324,  Vector328,  Vector32C
+ 212              	#endif
+ 213              	#if CORTEX_NUM_VECTORS > 188
+ 214              	        .long       Vector330,  Vector334,  Vector338,  Vector33C
+ 215              	#endif
+ 216              	#if CORTEX_NUM_VECTORS > 192
+ 217              	        .long       Vector340,  Vector344,  Vector348,  Vector34C
+ 218              	#endif
+ 219              	#if CORTEX_NUM_VECTORS > 196
+ 220              	        .long       Vector350,  Vector354,  Vector358,  Vector35C
+ 221              	#endif
+ 222              	#if CORTEX_NUM_VECTORS > 200
+ 223              	        .long       Vector360,  Vector364,  Vector368,  Vector36C
+ARM GAS  /tmp/ccdCRj3H.s 			page 8
+
+
+ 224              	#endif
+ 225              	#if CORTEX_NUM_VECTORS > 204
+ 226              	        .long       Vector370,  Vector374,  Vector378,  Vector37C
+ 227              	#endif
+ 228              	#if CORTEX_NUM_VECTORS > 208
+ 229              	        .long       Vector380,  Vector384,  Vector388,  Vector38C
+ 230              	#endif
+ 231              	#if CORTEX_NUM_VECTORS > 212
+ 232              	        .long       Vector390,  Vector394,  Vector398,  Vector39C
+ 233              	#endif
+ 234              	#if CORTEX_NUM_VECTORS > 216
+ 235              	        .long       Vector3A0,  Vector3A4,  Vector3A8,  Vector3AC
+ 236              	#endif
+ 237              	#if CORTEX_NUM_VECTORS > 220
+ 238              	        .long       Vector3B0,  Vector3B4,  Vector3B8,  Vector3BC
+ 239              	#endif
+ 240              	#if CORTEX_NUM_VECTORS > 224
+ 241              	        .long       Vector3C0,  Vector3C4,  Vector3C8,  Vector3CC
+ 242              	#endif
+ 243              	#if CORTEX_NUM_VECTORS > 228
+ 244              	        .long       Vector3D0,  Vector3D4,  Vector3D8,  Vector3DC
+ 245              	#endif
+ 246              	#if CORTEX_NUM_VECTORS > 232
+ 247              	        .long       Vector3E0,  Vector3E4,  Vector3E8,  Vector3EC
+ 248              	#endif
+ 249              	#if CORTEX_NUM_VECTORS > 236
+ 250              	        .long       Vector3F0,  Vector3F4,  Vector3F8,  Vector3FC
+ 251              	#endif
+ 252              	
+ 253              	        .text
+ 254              	
+ 255              	        .align      2
+ 256              	        .thumb_func
+ 257              	        .weak       Reset_Handler
+ 258              	Reset_Handler:
+ 259 0000 FEE7     	         b          _crt0_entry
+ 260              	
+ 261              	        .thumb_func
+ 262              	        .weak       NMI_Handler
+ 263              	        .weak       HardFault_Handler
+ 264              	        .weak       MemManage_Handler
+ 265              	        .weak       BusFault_Handler
+ 266              	        .weak       UsageFault_Handler
+ 267              	        .weak       Vector1C
+ 268              	        .weak       Vector20
+ 269              	        .weak       Vector24
+ 270              	        .weak       Vector28
+ 271              	        .weak       SVC_Handler
+ 272              	        .weak       DebugMon_Handler
+ 273              	        .weak       Vector34
+ 274              	        .weak       PendSV_Handler
+ 275              	        .weak       SysTick_Handler
+ 276              	        .weak       Vector40,   Vector44,   Vector48,   Vector4C
+ 277              	#if CORTEX_NUM_VECTORS > 4
+ 278              	        .weak       Vector50,   Vector54,   Vector58,   Vector5C
+ 279              	#endif
+ 280              	#if CORTEX_NUM_VECTORS > 8
+ARM GAS  /tmp/ccdCRj3H.s 			page 9
+
+
+ 281              	        .weak       Vector60,   Vector64,   Vector68,   Vector6C
+ 282              	#endif
+ 283              	#if CORTEX_NUM_VECTORS > 12
+ 284              	        .weak       Vector70,   Vector74,   Vector78,   Vector7C
+ 285              	#endif
+ 286              	#if CORTEX_NUM_VECTORS > 16
+ 287              	        .weak       Vector80,   Vector84,   Vector88,   Vector8C
+ 288              	#endif
+ 289              	#if CORTEX_NUM_VECTORS > 20
+ 290              	        .weak       Vector90,   Vector94,   Vector98,   Vector9C
+ 291              	#endif
+ 292              	#if CORTEX_NUM_VECTORS > 24
+ 293              	        .weak       VectorA0,   VectorA4,   VectorA8,   VectorAC
+ 294              	#endif
+ 295              	#if CORTEX_NUM_VECTORS > 28
+ 296              	        .weak       VectorB0,   VectorB4,   VectorB8,   VectorBC
+ 297              	#endif
+ 298              	#if CORTEX_NUM_VECTORS > 32
+ 299              	        .weak       VectorC0,   VectorC4,   VectorC8,   VectorCC
+ 300              	#endif
+ 301              	#if CORTEX_NUM_VECTORS > 36
+ 302              	        .weak       VectorD0,   VectorD4,   VectorD8,   VectorDC
+ 303              	#endif
+ 304              	#if CORTEX_NUM_VECTORS > 40
+ 305              	        .weak       VectorE0,   VectorE4,   VectorE8,   VectorEC
+ 306              	#endif
+ 307              	#if CORTEX_NUM_VECTORS > 44
+ 308              	        .weak       VectorF0,   VectorF4,   VectorF8,   VectorFC
+ 309              	#endif
+ 310              	#if CORTEX_NUM_VECTORS > 48
+ 311              	        .weak       Vector100,  Vector104,  Vector108,  Vector10C
+ 312              	#endif
+ 313              	#if CORTEX_NUM_VECTORS > 52
+ 314              	        .weak       Vector110,  Vector114,  Vector118,  Vector11C
+ 315              	#endif
+ 316              	#if CORTEX_NUM_VECTORS > 56
+ 317              	        .weak       Vector120,  Vector124,  Vector128,  Vector12C
+ 318              	#endif
+ 319              	#if CORTEX_NUM_VECTORS > 60
+ 320              	        .weak       Vector130,  Vector134,  Vector138,  Vector13C
+ 321              	#endif
+ 322              	#if CORTEX_NUM_VECTORS > 64
+ 323              	        .weak       Vector140,  Vector144,  Vector148,  Vector14C
+ 324              	#endif
+ 325              	#if CORTEX_NUM_VECTORS > 68
+ 326              	        .weak       Vector150,  Vector154,  Vector158,  Vector15C
+ 327              	#endif
+ 328              	#if CORTEX_NUM_VECTORS > 72
+ 329              	        .weak       Vector160,  Vector164,  Vector168,  Vector16C
+ 330              	#endif
+ 331              	#if CORTEX_NUM_VECTORS > 76
+ 332              	        .weak       Vector170,  Vector174,  Vector178,  Vector17C
+ 333              	#endif
+ 334              	#if CORTEX_NUM_VECTORS > 80
+ 335              	        .weak       Vector180,  Vector184,  Vector188,  Vector18C
+ 336              	#endif
+ 337              	#if CORTEX_NUM_VECTORS > 84
+ARM GAS  /tmp/ccdCRj3H.s 			page 10
+
+
+ 338              	        .weak       Vector190,  Vector194,  Vector198,  Vector19C
+ 339              	#endif
+ 340              	#if CORTEX_NUM_VECTORS > 88
+ 341              	        .weak       Vector1A0,  Vector1A4,  Vector1A8,  Vector1AC
+ 342              	#endif
+ 343              	#if CORTEX_NUM_VECTORS > 92
+ 344              	        .weak       Vector1B0,  Vector1B4,  Vector1B8,  Vector1BC
+ 345              	#endif
+ 346              	#if CORTEX_NUM_VECTORS > 96
+ 347              	        .weak       Vector1C0,  Vector1C4,  Vector1C8,  Vector1CC
+ 348              	#endif
+ 349              	#if CORTEX_NUM_VECTORS > 100
+ 350              	        .weak       Vector1D0,  Vector1D4,  Vector1D8,  Vector1DC
+ 351              	#endif
+ 352              	#if CORTEX_NUM_VECTORS > 104
+ 353              	        .weak       Vector1E0,  Vector1E4,  Vector1E8,  Vector1EC
+ 354              	#endif
+ 355              	#if CORTEX_NUM_VECTORS > 108
+ 356              	        .weak       Vector1F0,  Vector1F4,  Vector1F8,  Vector1FC
+ 357              	#endif
+ 358              	#if CORTEX_NUM_VECTORS > 112
+ 359              	        .weak       Vector200,  Vector204,  Vector208,  Vector20C
+ 360              	#endif
+ 361              	#if CORTEX_NUM_VECTORS > 116
+ 362              	        .weak       Vector210,  Vector214,  Vector218,  Vector21C
+ 363              	#endif
+ 364              	#if CORTEX_NUM_VECTORS > 120
+ 365              	        .weak       Vector220,  Vector224,  Vector228,  Vector22C
+ 366              	#endif
+ 367              	#if CORTEX_NUM_VECTORS > 124
+ 368              	        .weak       Vector230,  Vector234,  Vector238,  Vector23C
+ 369              	#endif
+ 370              	#if CORTEX_NUM_VECTORS > 128
+ 371              	        .weak       Vector240,  Vector244,  Vector248,  Vector24C
+ 372              	#endif
+ 373              	#if CORTEX_NUM_VECTORS > 132
+ 374              	        .weak       Vector250,  Vector254,  Vector258,  Vector25C
+ 375              	#endif
+ 376              	#if CORTEX_NUM_VECTORS > 136
+ 377              	        .weak       Vector260,  Vector264,  Vector268,  Vector26C
+ 378              	#endif
+ 379              	#if CORTEX_NUM_VECTORS > 140
+ 380              	        .weak       Vector270,  Vector274,  Vector278,  Vector27C
+ 381              	#endif
+ 382              	#if CORTEX_NUM_VECTORS > 144
+ 383              	        .weak       Vector280,  Vector284,  Vector288,  Vector28C
+ 384              	#endif
+ 385              	#if CORTEX_NUM_VECTORS > 148
+ 386              	        .weak       Vector290,  Vector294,  Vector298,  Vector29C
+ 387              	#endif
+ 388              	#if CORTEX_NUM_VECTORS > 152
+ 389              	        .weak       Vector2A0,  Vector2A4,  Vector2A8,  Vector2AC
+ 390              	#endif
+ 391              	#if CORTEX_NUM_VECTORS > 156
+ 392              	        .weak       Vector2B0,  Vector2B4,  Vector2B8,  Vector2BC
+ 393              	#endif
+ 394              	#if CORTEX_NUM_VECTORS > 160
+ARM GAS  /tmp/ccdCRj3H.s 			page 11
+
+
+ 395              	        .weak       Vector2C0,  Vector2C4,  Vector2C8,  Vector2CC
+ 396              	#endif
+ 397              	#if CORTEX_NUM_VECTORS > 164
+ 398              	        .weak       Vector2D0,  Vector2D4,  Vector2D8,  Vector2DC
+ 399              	#endif
+ 400              	#if CORTEX_NUM_VECTORS > 168
+ 401              	        .weak       Vector2E0,  Vector2E4,  Vector2E8,  Vector2EC
+ 402              	#endif
+ 403              	#if CORTEX_NUM_VECTORS > 172
+ 404              	        .weak       Vector2F0,  Vector2F4,  Vector2F8,  Vector2FC
+ 405              	#endif
+ 406              	#if CORTEX_NUM_VECTORS > 176
+ 407              	        .weak       Vector300,  Vector304,  Vector308,  Vector30C
+ 408              	#endif
+ 409              	#if CORTEX_NUM_VECTORS > 180
+ 410              	        .weak       Vector310,  Vector314,  Vector318,  Vector31C
+ 411              	#endif
+ 412              	#if CORTEX_NUM_VECTORS > 184
+ 413              	        .weak       Vector320,  Vector324,  Vector328,  Vector32C
+ 414              	#endif
+ 415              	#if CORTEX_NUM_VECTORS > 188
+ 416              	        .weak       Vector330,  Vector334,  Vector338,  Vector33C
+ 417              	#endif
+ 418              	#if CORTEX_NUM_VECTORS > 192
+ 419              	        .weak       Vector340,  Vector344,  Vector348,  Vector34C
+ 420              	#endif
+ 421              	#if CORTEX_NUM_VECTORS > 196
+ 422              	        .weak       Vector350,  Vector354,  Vector358,  Vector35C
+ 423              	#endif
+ 424              	#if CORTEX_NUM_VECTORS > 200
+ 425              	        .weak       Vector360,  Vector364,  Vector368,  Vector36C
+ 426              	#endif
+ 427              	#if CORTEX_NUM_VECTORS > 204
+ 428              	        .weak       Vector370,  Vector374,  Vector378,  Vector37C
+ 429              	#endif
+ 430              	#if CORTEX_NUM_VECTORS > 208
+ 431              	        .weak       Vector380,  Vector384,  Vector388,  Vector38C
+ 432              	#endif
+ 433              	#if CORTEX_NUM_VECTORS > 212
+ 434              	        .weak       Vector390,  Vector394,  Vector398,  Vector39C
+ 435              	#endif
+ 436              	#if CORTEX_NUM_VECTORS > 216
+ 437              	        .weak       Vector3A0,  Vector3A4,  Vector3A8,  Vector3AC
+ 438              	#endif
+ 439              	#if CORTEX_NUM_VECTORS > 220
+ 440              	        .weak       Vector3B0,  Vector3B4,  Vector3B8,  Vector3BC
+ 441              	#endif
+ 442              	#if CORTEX_NUM_VECTORS > 224
+ 443              	        .weak       Vector3C0,  Vector3C4,  Vector3C8,  Vector3CC
+ 444              	#endif
+ 445              	#if CORTEX_NUM_VECTORS > 228
+ 446              	        .weak       Vector3D0,  Vector3D4,  Vector3D8,  Vector3DC
+ 447              	#endif
+ 448              	#if CORTEX_NUM_VECTORS > 232
+ 449              	        .weak       Vector3E0,  Vector3E4,  Vector3E8,  Vector3EC
+ 450              	#endif
+ 451              	#if CORTEX_NUM_VECTORS > 236
+ARM GAS  /tmp/ccdCRj3H.s 			page 12
+
+
+ 452              	        .weak       Vector3F0,  Vector3F4,  Vector3F8,  Vector3FC
+ 453              	#endif
+ 454              	
+ 455              	        .thumb_func
+ 456              	NMI_Handler:
+ 457              	        .thumb_func
+ 458              	HardFault_Handler:
+ 459              	        .thumb_func
+ 460              	MemManage_Handler:
+ 461              	        .thumb_func
+ 462              	BusFault_Handler:
+ 463              	        .thumb_func
+ 464              	UsageFault_Handler:
+ 465              	        .thumb_func
+ 466              	Vector1C:
+ 467              	        .thumb_func
+ 468              	Vector20:
+ 469              	        .thumb_func
+ 470              	Vector24:
+ 471              	        .thumb_func
+ 472              	Vector28:
+ 473              	        .thumb_func
+ 474              	SVC_Handler:
+ 475              	        .thumb_func
+ 476              	DebugMon_Handler:
+ 477              	        .thumb_func
+ 478              	Vector34:
+ 479              	        .thumb_func
+ 480              	PendSV_Handler:
+ 481              	        .thumb_func
+ 482              	SysTick_Handler:
+ 483              	        .thumb_func
+ 484              	Vector40:
+ 485              	        .thumb_func
+ 486              	Vector44:
+ 487              	        .thumb_func
+ 488              	Vector48:
+ 489              	        .thumb_func
+ 490              	Vector4C:
+ 491              	        .thumb_func
+ 492              	Vector50:
+ 493              	        .thumb_func
+ 494              	Vector54:
+ 495              	        .thumb_func
+ 496              	Vector58:
+ 497              	        .thumb_func
+ 498              	Vector5C:
+ 499              	#if CORTEX_NUM_VECTORS > 8
+ 500              	        .thumb_func
+ 501              	Vector60:
+ 502              	        .thumb_func
+ 503              	Vector64:
+ 504              	        .thumb_func
+ 505              	Vector68:
+ 506              	        .thumb_func
+ 507              	Vector6C:
+ 508              	        .thumb_func
+ARM GAS  /tmp/ccdCRj3H.s 			page 13
+
+
+ 509              	Vector70:
+ 510              	        .thumb_func
+ 511              	Vector74:
+ 512              	        .thumb_func
+ 513              	Vector78:
+ 514              	        .thumb_func
+ 515              	Vector7C:
+ 516              	#endif
+ 517              	#if CORTEX_NUM_VECTORS > 16
+ 518              	        .thumb_func
+ 519              	Vector80:
+ 520              	        .thumb_func
+ 521              	Vector84:
+ 522              	        .thumb_func
+ 523              	Vector88:
+ 524              	        .thumb_func
+ 525              	Vector8C:
+ 526              	        .thumb_func
+ 527              	Vector90:
+ 528              	        .thumb_func
+ 529              	Vector94:
+ 530              	        .thumb_func
+ 531              	Vector98:
+ 532              	        .thumb_func
+ 533              	Vector9C:
+ 534              	#endif
+ 535              	#if CORTEX_NUM_VECTORS > 24
+ 536              	        .thumb_func
+ 537              	VectorA0:
+ 538              	        .thumb_func
+ 539              	VectorA4:
+ 540              	        .thumb_func
+ 541              	VectorA8:
+ 542              	        .thumb_func
+ 543              	VectorAC:
+ 544              	        .thumb_func
+ 545              	VectorB0:
+ 546              	        .thumb_func
+ 547              	VectorB4:
+ 548              	        .thumb_func
+ 549              	VectorB8:
+ 550              	        .thumb_func
+ 551              	VectorBC:
+ 552              	#endif
+ 553              	#if CORTEX_NUM_VECTORS > 32
+ 554              	        .thumb_func
+ 555              	VectorC0:
+ 556              	        .thumb_func
+ 557              	VectorC4:
+ 558              	        .thumb_func
+ 559              	VectorC8:
+ 560              	        .thumb_func
+ 561              	VectorCC:
+ 562              	        .thumb_func
+ 563              	VectorD0:
+ 564              	        .thumb_func
+ 565              	VectorD4:
+ARM GAS  /tmp/ccdCRj3H.s 			page 14
+
+
+ 566              	        .thumb_func
+ 567              	VectorD8:
+ 568              	        .thumb_func
+ 569              	VectorDC:
+ 570              	#endif
+ 571              	#if CORTEX_NUM_VECTORS > 40
+ 572              	        .thumb_func
+ 573              	VectorE0:
+ 574              	        .thumb_func
+ 575              	VectorE4:
+ 576              	        .thumb_func
+ 577              	VectorE8:
+ 578              	        .thumb_func
+ 579              	VectorEC:
+ 580              	        .thumb_func
+ 581              	VectorF0:
+ 582              	        .thumb_func
+ 583              	VectorF4:
+ 584              	        .thumb_func
+ 585              	VectorF8:
+ 586              	        .thumb_func
+ 587              	VectorFC:
+ 588              	#endif
+ 589              	#if CORTEX_NUM_VECTORS > 48
+ 590              	        .thumb_func
+ 591              	Vector100:
+ 592              	        .thumb_func
+ 593              	Vector104:
+ 594              	        .thumb_func
+ 595              	Vector108:
+ 596              	        .thumb_func
+ 597              	Vector10C:
+ 598              	        .thumb_func
+ 599              	Vector110:
+ 600              	        .thumb_func
+ 601              	Vector114:
+ 602              	        .thumb_func
+ 603              	Vector118:
+ 604              	        .thumb_func
+ 605              	Vector11C:
+ 606              	#endif
+ 607              	#if CORTEX_NUM_VECTORS > 56
+ 608              	        .thumb_func
+ 609              	Vector120:
+ 610              	        .thumb_func
+ 611              	Vector124:
+ 612              	        .thumb_func
+ 613              	Vector128:
+ 614              	        .thumb_func
+ 615              	Vector12C:
+ 616              	        .thumb_func
+ 617              	Vector130:
+ 618              	        .thumb_func
+ 619              	Vector134:
+ 620              	        .thumb_func
+ 621              	Vector138:
+ 622              	        .thumb_func
+ARM GAS  /tmp/ccdCRj3H.s 			page 15
+
+
+ 623              	Vector13C:
+ 624              	#endif
+ 625              	#if CORTEX_NUM_VECTORS > 64
+ 626              	        .thumb_func
+ 627              	Vector140:
+ 628              	        .thumb_func
+ 629              	Vector144:
+ 630              	        .thumb_func
+ 631              	Vector148:
+ 632              	        .thumb_func
+ 633              	Vector14C:
+ 634              	        .thumb_func
+ 635              	Vector150:
+ 636              	        .thumb_func
+ 637              	Vector154:
+ 638              	        .thumb_func
+ 639              	Vector158:
+ 640              	        .thumb_func
+ 641              	Vector15C:
+ 642              	#endif
+ 643              	#if CORTEX_NUM_VECTORS > 72
+ 644              	        .thumb_func
+ 645              	Vector160:
+ 646              	        .thumb_func
+ 647              	Vector164:
+ 648              	        .thumb_func
+ 649              	Vector168:
+ 650              	        .thumb_func
+ 651              	Vector16C:
+ 652              	        .thumb_func
+ 653              	Vector170:
+ 654              	        .thumb_func
+ 655              	Vector174:
+ 656              	        .thumb_func
+ 657              	Vector178:
+ 658              	        .thumb_func
+ 659              	Vector17C:
+ 660              	#endif
+ 661              	#if CORTEX_NUM_VECTORS > 80
+ 662              	        .thumb_func
+ 663              	Vector180:
+ 664              	        .thumb_func
+ 665              	Vector184:
+ 666              	        .thumb_func
+ 667              	Vector188:
+ 668              	        .thumb_func
+ 669              	Vector18C:
+ 670              	        .thumb_func
+ 671              	Vector190:
+ 672              	        .thumb_func
+ 673              	Vector194:
+ 674              	        .thumb_func
+ 675              	Vector198:
+ 676              	        .thumb_func
+ 677              	Vector19C:
+ 678              	#endif
+ 679              	#if CORTEX_NUM_VECTORS > 88
+ARM GAS  /tmp/ccdCRj3H.s 			page 16
+
+
+ 680              	        .thumb_func
+ 681              	Vector1A0:
+ 682              	        .thumb_func
+ 683              	Vector1A4:
+ 684              	        .thumb_func
+ 685              	Vector1A8:
+ 686              	        .thumb_func
+ 687              	Vector1AC:
+ 688              	        .thumb_func
+ 689              	Vector1B0:
+ 690              	        .thumb_func
+ 691              	Vector1B4:
+ 692              	        .thumb_func
+ 693              	Vector1B8:
+ 694              	        .thumb_func
+ 695              	Vector1BC:
+ 696              	#endif
+ 697              	#if CORTEX_NUM_VECTORS > 96
+ 698              	        .thumb_func
+ 699              	Vector1C0:
+ 700              	        .thumb_func
+ 701              	Vector1C4:
+ 702              	        .thumb_func
+ 703              	Vector1C8:
+ 704              	        .thumb_func
+ 705              	Vector1CC:
+ 706              	        .thumb_func
+ 707              	Vector1D0:
+ 708              	        .thumb_func
+ 709              	Vector1D4:
+ 710              	        .thumb_func
+ 711              	Vector1D8:
+ 712              	        .thumb_func
+ 713              	Vector1DC:
+ 714              	#endif
+ 715              	#if CORTEX_NUM_VECTORS > 104
+ 716              	        .thumb_func
+ 717              	Vector1E0:
+ 718              	        .thumb_func
+ 719              	Vector1E4:
+ 720              	        .thumb_func
+ 721              	Vector1E8:
+ 722              	        .thumb_func
+ 723              	Vector1EC:
+ 724              	        .thumb_func
+ 725              	Vector1F0:
+ 726              	        .thumb_func
+ 727              	Vector1F4:
+ 728              	        .thumb_func
+ 729              	Vector1F8:
+ 730              	        .thumb_func
+ 731              	Vector1FC:
+ 732              	#endif
+ 733              	#if CORTEX_NUM_VECTORS > 112
+ 734              	        .thumb_func
+ 735              	Vector200:
+ 736              	        .thumb_func
+ARM GAS  /tmp/ccdCRj3H.s 			page 17
+
+
+ 737              	Vector204:
+ 738              	        .thumb_func
+ 739              	Vector208:
+ 740              	        .thumb_func
+ 741              	Vector20C:
+ 742              	        .thumb_func
+ 743              	Vector210:
+ 744              	        .thumb_func
+ 745              	Vector214:
+ 746              	        .thumb_func
+ 747              	Vector218:
+ 748              	        .thumb_func
+ 749              	Vector21C:
+ 750              	#endif
+ 751              	#if CORTEX_NUM_VECTORS > 120
+ 752              	        .thumb_func
+ 753              	Vector220:
+ 754              	        .thumb_func
+ 755              	Vector224:
+ 756              	        .thumb_func
+ 757              	Vector228:
+ 758              	        .thumb_func
+ 759              	Vector22C:
+ 760              	        .thumb_func
+ 761              	Vector230:
+ 762              	        .thumb_func
+ 763              	Vector234:
+ 764              	        .thumb_func
+ 765              	Vector238:
+ 766              	        .thumb_func
+ 767              	Vector23C:
+ 768              	#endif
+ 769              	#if CORTEX_NUM_VECTORS > 128
+ 770              	        .thumb_func
+ 771              	Vector240:
+ 772              	        .thumb_func
+ 773              	Vector244:
+ 774              	        .thumb_func
+ 775              	Vector248:
+ 776              	        .thumb_func
+ 777              	Vector24C:
+ 778              	        .thumb_func
+ 779              	Vector250:
+ 780              	        .thumb_func
+ 781              	Vector254:
+ 782              	        .thumb_func
+ 783              	Vector258:
+ 784              	        .thumb_func
+ 785              	Vector25C:
+ 786              	#endif
+ 787              	#if CORTEX_NUM_VECTORS > 136
+ 788              	        .thumb_func
+ 789              	Vector260:
+ 790              	        .thumb_func
+ 791              	Vector264:
+ 792              	        .thumb_func
+ 793              	Vector268:
+ARM GAS  /tmp/ccdCRj3H.s 			page 18
+
+
+ 794              	        .thumb_func
+ 795              	Vector26C:
+ 796              	        .thumb_func
+ 797              	Vector270:
+ 798              	        .thumb_func
+ 799              	Vector274:
+ 800              	        .thumb_func
+ 801              	Vector278:
+ 802              	        .thumb_func
+ 803              	Vector27C:
+ 804              	#endif
+ 805              	#if CORTEX_NUM_VECTORS > 144
+ 806              	        .thumb_func
+ 807              	Vector280:
+ 808              	        .thumb_func
+ 809              	Vector284:
+ 810              	        .thumb_func
+ 811              	Vector288:
+ 812              	        .thumb_func
+ 813              	Vector28C:
+ 814              	        .thumb_func
+ 815              	Vector290:
+ 816              	        .thumb_func
+ 817              	Vector294:
+ 818              	        .thumb_func
+ 819              	Vector298:
+ 820              	        .thumb_func
+ 821              	Vector29C:
+ 822              	#endif
+ 823              	#if CORTEX_NUM_VECTORS > 152
+ 824              	        .thumb_func
+ 825              	Vector2A0:
+ 826              	        .thumb_func
+ 827              	Vector2A4:
+ 828              	        .thumb_func
+ 829              	Vector2A8:
+ 830              	        .thumb_func
+ 831              	Vector2AC:
+ 832              	        .thumb_func
+ 833              	Vector2B0:
+ 834              	        .thumb_func
+ 835              	Vector2B4:
+ 836              	        .thumb_func
+ 837              	Vector2B8:
+ 838              	        .thumb_func
+ 839              	Vector2BC:
+ 840              	#endif
+ 841              	#if CORTEX_NUM_VECTORS > 160
+ 842              	        .thumb_func
+ 843              	Vector2C0:
+ 844              	        .thumb_func
+ 845              	Vector2C4:
+ 846              	        .thumb_func
+ 847              	Vector2C8:
+ 848              	        .thumb_func
+ 849              	Vector2CC:
+ 850              	        .thumb_func
+ARM GAS  /tmp/ccdCRj3H.s 			page 19
+
+
+ 851              	Vector2D0:
+ 852              	        .thumb_func
+ 853              	Vector2D4:
+ 854              	        .thumb_func
+ 855              	Vector2D8:
+ 856              	        .thumb_func
+ 857              	Vector2DC:
+ 858              	#endif
+ 859              	#if CORTEX_NUM_VECTORS > 168
+ 860              	        .thumb_func
+ 861              	Vector2E0:
+ 862              	        .thumb_func
+ 863              	Vector2E4:
+ 864              	        .thumb_func
+ 865              	Vector2E8:
+ 866              	        .thumb_func
+ 867              	Vector2EC:
+ 868              	        .thumb_func
+ 869              	Vector2F0:
+ 870              	        .thumb_func
+ 871              	Vector2F4:
+ 872              	        .thumb_func
+ 873              	Vector2F8:
+ 874              	        .thumb_func
+ 875              	Vector2FC:
+ 876              	#endif
+ 877              	#if CORTEX_NUM_VECTORS > 176
+ 878              	        .thumb_func
+ 879              	Vector300:
+ 880              	        .thumb_func
+ 881              	Vector304:
+ 882              	        .thumb_func
+ 883              	Vector308:
+ 884              	        .thumb_func
+ 885              	Vector30C:
+ 886              	        .thumb_func
+ 887              	Vector310:
+ 888              	        .thumb_func
+ 889              	Vector314:
+ 890              	        .thumb_func
+ 891              	Vector318:
+ 892              	        .thumb_func
+ 893              	Vector31C:
+ 894              	#endif
+ 895              	#if CORTEX_NUM_VECTORS > 184
+ 896              	        .thumb_func
+ 897              	Vector320:
+ 898              	        .thumb_func
+ 899              	Vector324:
+ 900              	        .thumb_func
+ 901              	Vector328:
+ 902              	        .thumb_func
+ 903              	Vector32C:
+ 904              	        .thumb_func
+ 905              	Vector330:
+ 906              	        .thumb_func
+ 907              	Vector334:
+ARM GAS  /tmp/ccdCRj3H.s 			page 20
+
+
+ 908              	        .thumb_func
+ 909              	Vector338:
+ 910              	        .thumb_func
+ 911              	Vector33C:
+ 912              	#endif
+ 913              	#if CORTEX_NUM_VECTORS > 192
+ 914              	        .thumb_func
+ 915              	Vector340:
+ 916              	        .thumb_func
+ 917              	Vector344:
+ 918              	        .thumb_func
+ 919              	Vector348:
+ 920              	        .thumb_func
+ 921              	Vector34C:
+ 922              	        .thumb_func
+ 923              	Vector350:
+ 924              	        .thumb_func
+ 925              	Vector354:
+ 926              	        .thumb_func
+ 927              	Vector358:
+ 928              	        .thumb_func
+ 929              	Vector35C:
+ 930              	#endif
+ 931              	#if CORTEX_NUM_VECTORS > 200
+ 932              	        .thumb_func
+ 933              	Vector360:
+ 934              	        .thumb_func
+ 935              	Vector364:
+ 936              	        .thumb_func
+ 937              	Vector368:
+ 938              	        .thumb_func
+ 939              	Vector36C:
+ 940              	        .thumb_func
+ 941              	Vector370:
+ 942              	        .thumb_func
+ 943              	Vector374:
+ 944              	        .thumb_func
+ 945              	Vector378:
+ 946              	        .thumb_func
+ 947              	Vector37C:
+ 948              	#endif
+ 949              	#if CORTEX_NUM_VECTORS > 208
+ 950              	        .thumb_func
+ 951              	Vector380:
+ 952              	        .thumb_func
+ 953              	Vector384:
+ 954              	        .thumb_func
+ 955              	Vector388:
+ 956              	        .thumb_func
+ 957              	Vector38C:
+ 958              	        .thumb_func
+ 959              	Vector390:
+ 960              	        .thumb_func
+ 961              	Vector394:
+ 962              	        .thumb_func
+ 963              	Vector398:
+ 964              	        .thumb_func
+ARM GAS  /tmp/ccdCRj3H.s 			page 21
+
+
+ 965              	Vector39C:
+ 966              	#endif
+ 967              	#if CORTEX_NUM_VECTORS > 216
+ 968              	        .thumb_func
+ 969              	Vector3A0:
+ 970              	        .thumb_func
+ 971              	Vector3A4:
+ 972              	        .thumb_func
+ 973              	Vector3A8:
+ 974              	        .thumb_func
+ 975              	Vector3AC:
+ 976              	        .thumb_func
+ 977              	Vector3B0:
+ 978              	        .thumb_func
+ 979              	Vector3B4:
+ 980              	        .thumb_func
+ 981              	Vector3B8:
+ 982              	        .thumb_func
+ 983              	Vector3BC:
+ 984              	#endif
+ 985              	#if CORTEX_NUM_VECTORS > 224
+ 986              	        .thumb_func
+ 987              	Vector3C0:
+ 988              	        .thumb_func
+ 989              	Vector3C4:
+ 990              	        .thumb_func
+ 991              	Vector3C8:
+ 992              	        .thumb_func
+ 993              	Vector3CC:
+ 994              	        .thumb_func
+ 995              	Vector3D0:
+ 996              	        .thumb_func
+ 997              	Vector3D4:
+ 998              	        .thumb_func
+ 999              	Vector3D8:
+ 1000              	        .thumb_func
+ 1001              	Vector3DC:
+ 1002              	#endif
+ 1003              	#if CORTEX_NUM_VECTORS > 232
+ 1004              	        .thumb_func
+ 1005              	Vector3E0:
+ 1006              	        .thumb_func
+ 1007              	Vector3E4:
+ 1008              	        .thumb_func
+ 1009              	Vector3E8:
+ 1010              	        .thumb_func
+ 1011              	Vector3EC:
+ 1012              	        .thumb_func
+ 1013              	Vector3F0:
+ 1014              	        .thumb_func
+ 1015              	Vector3F4:
+ 1016              	        .thumb_func
+ 1017              	Vector3F8:
+ 1018              	        .thumb_func
+ 1019              	Vector3FC:
+ 1020              	#endif
+ 1021 0002 FFF7FEFF 	        bl          _unhandled_exception
+ARM GAS  /tmp/ccdCRj3H.s 			page 22
+
+
+ 1022              	
+ 1023              	        .thumb_func
+ 1024              	        .weak       _unhandled_exception
+ 1025              	_unhandled_exception:
+ 1026              	.stay:
+ 1027 0006 FEE7     	        b           .stay
+ARM GAS  /tmp/ccdCRj3H.s 			page 23
+
+
+DEFINED SYMBOLS
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:57     .vectors:0000000000000000 _vectors
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:58     .vectors:0000000000000000 $d
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:258    .text:0000000000000000 Reset_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:456    .text:0000000000000002 NMI_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:458    .text:0000000000000002 HardFault_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:460    .text:0000000000000002 MemManage_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:462    .text:0000000000000002 BusFault_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:464    .text:0000000000000002 UsageFault_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:466    .text:0000000000000002 Vector1C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:468    .text:0000000000000002 Vector20
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:470    .text:0000000000000002 Vector24
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:472    .text:0000000000000002 Vector28
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:474    .text:0000000000000002 SVC_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:476    .text:0000000000000002 DebugMon_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:478    .text:0000000000000002 Vector34
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:480    .text:0000000000000002 PendSV_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:482    .text:0000000000000002 SysTick_Handler
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:484    .text:0000000000000002 Vector40
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:486    .text:0000000000000002 Vector44
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:488    .text:0000000000000002 Vector48
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:490    .text:0000000000000002 Vector4C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:492    .text:0000000000000002 Vector50
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:494    .text:0000000000000002 Vector54
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:496    .text:0000000000000002 Vector58
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:498    .text:0000000000000002 Vector5C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:501    .text:0000000000000002 Vector60
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:503    .text:0000000000000002 Vector64
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:505    .text:0000000000000002 Vector68
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:507    .text:0000000000000002 Vector6C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:509    .text:0000000000000002 Vector70
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:511    .text:0000000000000002 Vector74
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:513    .text:0000000000000002 Vector78
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:515    .text:0000000000000002 Vector7C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:519    .text:0000000000000002 Vector80
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:521    .text:0000000000000002 Vector84
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:523    .text:0000000000000002 Vector88
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:525    .text:0000000000000002 Vector8C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:527    .text:0000000000000002 Vector90
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:529    .text:0000000000000002 Vector94
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:531    .text:0000000000000002 Vector98
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:533    .text:0000000000000002 Vector9C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:537    .text:0000000000000002 VectorA0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:539    .text:0000000000000002 VectorA4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:541    .text:0000000000000002 VectorA8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:543    .text:0000000000000002 VectorAC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:545    .text:0000000000000002 VectorB0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:547    .text:0000000000000002 VectorB4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:549    .text:0000000000000002 VectorB8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:551    .text:0000000000000002 VectorBC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:555    .text:0000000000000002 VectorC0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:557    .text:0000000000000002 VectorC4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:559    .text:0000000000000002 VectorC8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:561    .text:0000000000000002 VectorCC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:563    .text:0000000000000002 VectorD0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:565    .text:0000000000000002 VectorD4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:567    .text:0000000000000002 VectorD8
+ARM GAS  /tmp/ccdCRj3H.s 			page 24
+
+
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:569    .text:0000000000000002 VectorDC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:573    .text:0000000000000002 VectorE0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:575    .text:0000000000000002 VectorE4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:577    .text:0000000000000002 VectorE8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:579    .text:0000000000000002 VectorEC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:581    .text:0000000000000002 VectorF0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:583    .text:0000000000000002 VectorF4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:585    .text:0000000000000002 VectorF8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:587    .text:0000000000000002 VectorFC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:591    .text:0000000000000002 Vector100
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:593    .text:0000000000000002 Vector104
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:595    .text:0000000000000002 Vector108
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:597    .text:0000000000000002 Vector10C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:599    .text:0000000000000002 Vector110
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:601    .text:0000000000000002 Vector114
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:603    .text:0000000000000002 Vector118
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:605    .text:0000000000000002 Vector11C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:609    .text:0000000000000002 Vector120
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:611    .text:0000000000000002 Vector124
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:613    .text:0000000000000002 Vector128
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:615    .text:0000000000000002 Vector12C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:617    .text:0000000000000002 Vector130
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:619    .text:0000000000000002 Vector134
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:621    .text:0000000000000002 Vector138
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:623    .text:0000000000000002 Vector13C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:627    .text:0000000000000002 Vector140
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:629    .text:0000000000000002 Vector144
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:631    .text:0000000000000002 Vector148
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:633    .text:0000000000000002 Vector14C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:635    .text:0000000000000002 Vector150
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:637    .text:0000000000000002 Vector154
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:639    .text:0000000000000002 Vector158
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:641    .text:0000000000000002 Vector15C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:645    .text:0000000000000002 Vector160
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:647    .text:0000000000000002 Vector164
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:649    .text:0000000000000002 Vector168
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:651    .text:0000000000000002 Vector16C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:653    .text:0000000000000002 Vector170
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:655    .text:0000000000000002 Vector174
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:657    .text:0000000000000002 Vector178
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:659    .text:0000000000000002 Vector17C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:663    .text:0000000000000002 Vector180
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:665    .text:0000000000000002 Vector184
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:667    .text:0000000000000002 Vector188
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:669    .text:0000000000000002 Vector18C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:671    .text:0000000000000002 Vector190
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:673    .text:0000000000000002 Vector194
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:675    .text:0000000000000002 Vector198
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:677    .text:0000000000000002 Vector19C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:681    .text:0000000000000002 Vector1A0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:683    .text:0000000000000002 Vector1A4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:685    .text:0000000000000002 Vector1A8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:687    .text:0000000000000002 Vector1AC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:689    .text:0000000000000002 Vector1B0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:691    .text:0000000000000002 Vector1B4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:693    .text:0000000000000002 Vector1B8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:695    .text:0000000000000002 Vector1BC
+ARM GAS  /tmp/ccdCRj3H.s 			page 25
+
+
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:699    .text:0000000000000002 Vector1C0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:701    .text:0000000000000002 Vector1C4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:703    .text:0000000000000002 Vector1C8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:705    .text:0000000000000002 Vector1CC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:707    .text:0000000000000002 Vector1D0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:709    .text:0000000000000002 Vector1D4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:711    .text:0000000000000002 Vector1D8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:713    .text:0000000000000002 Vector1DC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:717    .text:0000000000000002 Vector1E0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:719    .text:0000000000000002 Vector1E4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:721    .text:0000000000000002 Vector1E8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:723    .text:0000000000000002 Vector1EC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:725    .text:0000000000000002 Vector1F0
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:727    .text:0000000000000002 Vector1F4
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:729    .text:0000000000000002 Vector1F8
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:731    .text:0000000000000002 Vector1FC
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:735    .text:0000000000000002 Vector200
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:737    .text:0000000000000002 Vector204
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:739    .text:0000000000000002 Vector208
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:741    .text:0000000000000002 Vector20C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:743    .text:0000000000000002 Vector210
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:745    .text:0000000000000002 Vector214
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:747    .text:0000000000000002 Vector218
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:749    .text:0000000000000002 Vector21C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:753    .text:0000000000000002 Vector220
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:755    .text:0000000000000002 Vector224
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:757    .text:0000000000000002 Vector228
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:759    .text:0000000000000002 Vector22C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:761    .text:0000000000000002 Vector230
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:763    .text:0000000000000002 Vector234
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:765    .text:0000000000000002 Vector238
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:767    .text:0000000000000002 Vector23C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:771    .text:0000000000000002 Vector240
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:773    .text:0000000000000002 Vector244
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:775    .text:0000000000000002 Vector248
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:777    .text:0000000000000002 Vector24C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:779    .text:0000000000000002 Vector250
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:781    .text:0000000000000002 Vector254
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:783    .text:0000000000000002 Vector258
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:785    .text:0000000000000002 Vector25C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:789    .text:0000000000000002 Vector260
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:791    .text:0000000000000002 Vector264
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:793    .text:0000000000000002 Vector268
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:795    .text:0000000000000002 Vector26C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:797    .text:0000000000000002 Vector270
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:799    .text:0000000000000002 Vector274
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:801    .text:0000000000000002 Vector278
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:803    .text:0000000000000002 Vector27C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:807    .text:0000000000000002 Vector280
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:809    .text:0000000000000002 Vector284
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:811    .text:0000000000000002 Vector288
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:813    .text:0000000000000002 Vector28C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:815    .text:0000000000000002 Vector290
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:817    .text:0000000000000002 Vector294
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:819    .text:0000000000000002 Vector298
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:821    .text:0000000000000002 Vector29C
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:255    .text:0000000000000000 $t
+ARM GAS  /tmp/ccdCRj3H.s 			page 26
+
+
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:1025   .text:0000000000000006 _unhandled_exception
+../../../external/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/vectors.S:1026   .text:0000000000000006 .stay
+
+UNDEFINED SYMBOLS
+__main_stack_end__
+_crt0_entry

@@ -1,0 +1,133 @@
+gcc_bin ?= ${external}/gcc-arm/${platform}/gcc-arm-none-eabi-8-2019-q3-update/bin
+
+ifeq (${platform},win)
+	suffix = .exe
+else
+	suffix =
+endif
+
+CC=${gcc_bin}/arm-none-eabi-gcc${suffix}
+CPP=${gcc_bin}/arm-none-eabi-g++${suffix}
+LD=${gcc_bin}/arm-none-eabi-gcc${suffix}
+CP=${gcc_bin}/arm-none-eabi-objcopy${suffix}
+
+FIRMWARE = ../firmware
+
+MUTABLE_INSTRUMENTS = ${external}/mutable_instruments
+
+include ${FIRMWARE}/ch_version.mk
+
+MCU  = cortex-m7
+CONFDIR  := ./cfg
+
+CMSIS = ${external}/CMSIS
+
+SPACE :=
+SPACE +=
+
+ifeq (${platform},mac)
+	BDIR = ${mac_prefix}/build
+else
+	BDIR = ../build
+endif
+
+CCFLAGS = -nostdlib -fno-exceptions -fno-rtti -mcpu=cortex-m7 -O3 -fomit-frame-pointer -falign-functions=16 -mfloat-abi=hard -mfpu=fpv5-sp-d16 -Wunused-parameter -DCORTEX_USE_FPU=TRUE -DTHUMB_PRESENT -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -mthumb -DTHUMB -std=c++11 -DARM_MATH_CM7 -D__FPU_PRESENT -fno-math-errno -fno-threadsafe-statics -fno-use-cxa-atexit -Wno-unused-parameter -fpermissive -mno-unaligned-access
+
+LDFLAGS = -nostartfiles -T${FIRMWARE}/ramlink.ld -mcpu=cortex-m7 -mfloat-abi=hard -mfpu=fpv5-sp-d16 -mthumb -mno-thumb-interwork -Wl,--print-memory-usage
+
+
+include $(CHIBIOS)/os/license/license.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32h7xx.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32H7xx/platform.mk
+include $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_H743ZI/board.mk
+
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
+
+include $(CHIBIOS)/tools/mk/autobuild.mk
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
+
+include $(CHIBIOS_CONTRIB)/os/hal/hal.mk
+
+
+ALLINC  += $(PLATFORMINC_CONTRIB)
+
+INCDIR = $(CONFDIR) $(ALLINC) \
+         $(CHIBIOS)/os/license \
+         ${CMSIS}/Include \
+         ${CMSIS}/DSP_Lib/Include \
+		 $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
+         $(FATFSINC) \
+         $(CHIBIOS)/os/various \
+         $(CHIBIOS)/os/hal/lib/streams \
+         ${FIRMWARE} \
+         ${MUTABLE_INSTRUMENTS} \
+         ${MUTABLE_INSTRUMENTS}/braids \
+         ${MUTABLE_INSTRUMENTS}/rings \
+         ${MUTABLE_INSTRUMENTS}/elements \
+         ${MUTABLE_INSTRUMENTS}/stmlib \
+
+
+IINCDIR   = $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR))
+LLIBDIR   = $(patsubst %,-L%,$(DLIBDIR) $(ULIBDIR))
+XPATCH ?= ${BDIR}/xpatch
+
+allin = $(shell find . -name "*.cpp"|sed 's: :\\ :g')
+
+all : ${XPATCH}.all
+
+allindir : $(patsubst %.cpp,%.all,$(allin))
+
+.SECONDARY:
+
+#generate modules dependancy and link parameters
+#MODULE_LIBS = ${BDIR}/libtest.a
+#MODULE_LINK = -L{BDIR}/test -l ${BDIR}/libtest.a
+
+# MODULES (optionally) defined by Axo UI
+# MODULES = test
+# MODULE_DIRS = ../module
+
+${BDIR}/xpatch.h.gch: ${FIRMWARE}/xpatch.h ${FIRMWARE}/patch.h ${FIRMWARE}/axoloti.h ${FIRMWARE}/parameter_functions.h ${FIRMWARE}/axoloti_math.h ${FIRMWARE}/axoloti_filters.h ${FIRMWARE}/build/axoloti.elf
+	@echo "Build precompiled header"
+	$(CPP) $(CCFLAGS) $(IINCDIR) -Winvalid-pch -c ${FIRMWARE}/xpatch.h -o ${BDIR}/xpatch.h.gch
+
+%.o: %.cpp ${MODULE_LIBS} ${BDIR}/xpatch.h.gch
+	$(eval MODULES := $(shell sed -n 's/^\/\/$$MODULES=\(.*\)/\1/gp' $<))
+	$(eval MODULE_DIRS := $(shell sed -n 's/^\/\/$$MODULE_DIRS=\(.*\)/\1/gp' $<))
+	$(eval MODULE_INC = $(foreach MODULE_DIR, ${MODULE_DIRS}, -I$(MODULE_DIR)))
+	$(eval MODULE_BINC = $(foreach MODULE, ${MODULES}, -I${BDIR}/modules/$(MODULE)))
+	$(eval MODULE_LIBS = $(foreach MODULE, ${MODULES}, ${BDIR}/modules/$(MODULE)/lib$(MODULE).a))
+	$(eval MODULE_LINKDIR = $(patsubst %,-L ${BDIR}/modules/% ,$(MODULES)))
+	$(eval MODULE_LINKLIB = $(patsubst %,-l%,$(MODULES)))
+	@$(CPP) $(CCFLAGS) $(MODULE_BINC) $(MODULE_INC) $(IINCDIR) -Winvalid-pch --include ${BDIR}/xpatch.h -c "$<" -o "$@"
+
+%.elf: %.o
+	@$(LD) $(LDFLAGS) "$<" ${MODULE_LINKDIR} ${MODULE_LINKLIB} -Wl,-Map="$(@:.elf=.map)",--cref,--just-symbols=${FIRMWARE}/build/axoloti.elf -o "$@"
+
+%.sram1.bin: %.elf
+	@$(CP) -O binary -R .sdram.* -R .rodata -R .rodata.* -R .data -R .data.* "$<" "$@"
+
+%.sram3.bin: %.elf
+	@$(CP) -O binary --only-section=.rodata --only-section=.rodata.* --only-section=.data --only-section=.data.* "$<" "$@"
+
+%.sdram.bin: %.elf
+	@$(CP) -O binary --only-section=.sdram.* "$<" "$@"
+
+%.all : %.sram1.bin %.sram3.bin %.sdram.bin
+	@echo done $(@:.all=)
+
+%.clean :
+	@rm -f ${XPATCH}.o
+	@rm -f ${XPATCH}.elf
+	@rm -f ${XPATCH}.sram1.bin
+	@rm -f ${XPATCH}.sram3.bin
+	@rm -f ${XPATCH}.sdram.bin
+	@rm -f ${XPATCH}.d
+	@rm -f ${XPATCH}.map
+	@rm -f ${XPATCH}.lst
+
+clean: ${XPATCH}.clean
+	@echo CLEAN

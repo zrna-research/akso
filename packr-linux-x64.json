@@ -1,0 +1,26 @@
+{
+    "platform": "linux64",
+    "jdk": "external/jdks/linux_x64/OpenJDK11U-jdk_x64_linux_hotspot_11.0.8_10.tar.gz",
+    "executable": "Akso",
+    "classpath": [
+        "axoloti/dist/Axoloti.jar"
+    ],
+    "removelibs": [
+        "axoloti/dist/Axoloti.jar"
+    ],
+    "mainclass": "axoloti.Axoloti",
+    "vmargs": [
+        "Xms1G",
+        "Xmx1G",
+        "Dsun.java2d.dpiaware=true"
+    ],
+    "resources": [
+        "external",
+        "axoloti/firmware",
+        "axoloti/platform_linux",
+        "axoloti/src/main/java/resources/icon_512x512.png"
+    ],
+    "minimizejre": "hard",
+    "output": "package/linux/akso-3.0.1",
+    "verbose": true
+}

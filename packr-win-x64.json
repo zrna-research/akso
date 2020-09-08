@@ -1,0 +1,25 @@
+{
+    "platform": "windows64",
+    "jdk": "external/jdks/win_x64/OpenJDK11U-jdk_x64_windows_hotspot_11.0.8_10.zip",
+    "executable": "Akso",
+    "classpath": [
+        "axoloti/dist/Axoloti.jar"
+    ],
+    "removelibs": [
+        "axoloti/dist/Axoloti.jar"
+    ],
+    "mainclass": "axoloti.Axoloti",
+    "vmargs": [
+        "Xms1G",
+        "Xmx1G",
+        "Dsun.java2d.dpiaware=true"
+    ],
+    "resources": [
+        "external",
+        "axoloti/firmware",
+        "axoloti/platform_win"
+    ],
+    "minimizejre": "hard",
+    "output": "package/win/akso-3.0.1",
+    "verbose": true
+}
