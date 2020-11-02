@@ -380,6 +380,7 @@ TCSRC =
 TCPPSRC =
 
 # List ASM source files here
+#ASMSRC = ${CMSIS}/DSP_Lib/Source/TransformFunctions/arm_bitreversal2.s
 ASMSRC = ${CMSIS}/DSP_Lib/Source/TransformFunctions/arm_bitreversal2.s
 ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 

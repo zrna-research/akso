@@ -265,7 +265,7 @@ public class Preferences {
     }
 
     static String getPrefsFileLoc() {
-        return "axoloti.prefs";
+        return Axoloti.getPreferencesFilePath();
     }
 
     private static Preferences singleton;

@@ -21,6 +21,6 @@
         "axoloti/src/main/java/resources/icon_512x512.png"
     ],
     "minimizejre": "hard",
-    "output": "package/linux/akso-3.0.1",
+    "output": "package/linux/akso-3.0.2",
     "verbose": true
 }

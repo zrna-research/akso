@@ -20,6 +20,6 @@
         "axoloti/platform_win"
     ],
     "minimizejre": "hard",
-    "output": "package/win/akso-3.0.1",
+    "output": "package/win/akso-3.0.2",
     "verbose": true
 }

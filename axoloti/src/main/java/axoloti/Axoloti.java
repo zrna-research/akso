@@ -110,6 +110,16 @@ public class Axoloti {
         }
     }
 
+    public static String getPreferencesFilePath() {
+        final String preferencesFileName = "axoloti.prefs";
+        if(OSDetect.getOS() == OSDetect.OS.MAC) {
+            return macLibraryDirectory() + File.separator + preferencesFileName;
+        }
+        else {
+            return preferencesFileName;
+        }
+    }
+
     public static String externalDirectory() {
         if(isDevelopmentBuild()) {
             return new File(jarURI()).getParentFile().getParentFile().getParentFile().getPath() + File.separator + "external";
